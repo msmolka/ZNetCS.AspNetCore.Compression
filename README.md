@@ -84,6 +84,6 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerF
 }
 ```
 
-The default option when empty constructor is used are listed above.
+The default options when empty constructor is used are listed above.
 
 
