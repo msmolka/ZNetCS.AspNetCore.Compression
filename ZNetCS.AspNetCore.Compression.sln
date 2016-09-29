@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{07207970-3D59-4C16-8C21-3F9021465B4A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F8B04BF7-CA2A-4ABC-A969-08AEF2647D44}"
+	ProjectSection(SolutionItems) = preProject
+		global.json = global.json
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "ZNetCS.AspNetCore.Compression", "src\ZNetCS.AspNetCore.Compression\ZNetCS.AspNetCore.Compression.xproj", "{307A6D8F-1E14-4D39-B2E3-F5820DBF99F9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{669F3D41-5F78-4CAF-A145-EE64A2882A9F}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "ZNetCS.AspNetCore.CompressionTest", "test\ZNetCS.AspNetCore.CompressionTest\ZNetCS.AspNetCore.CompressionTest.xproj", "{FF8AC07F-C72F-41C9-9242-613B60FF7780}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "ZNetCS.AspNetCore.Compression.TestWebSite", "test\ZNetCS.AspNetCore.Compression.TestWebSite\ZNetCS.AspNetCore.Compression.TestWebSite.xproj", "{F6134ECB-2395-4643-AEBB-573D3B4BEA59}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{307A6D8F-1E14-4D39-B2E3-F5820DBF99F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{307A6D8F-1E14-4D39-B2E3-F5820DBF99F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{307A6D8F-1E14-4D39-B2E3-F5820DBF99F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{307A6D8F-1E14-4D39-B2E3-F5820DBF99F9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF8AC07F-C72F-41C9-9242-613B60FF7780}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF8AC07F-C72F-41C9-9242-613B60FF7780}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF8AC07F-C72F-41C9-9242-613B60FF7780}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF8AC07F-C72F-41C9-9242-613B60FF7780}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F6134ECB-2395-4643-AEBB-573D3B4BEA59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6134ECB-2395-4643-AEBB-573D3B4BEA59}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6134ECB-2395-4643-AEBB-573D3B4BEA59}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6134ECB-2395-4643-AEBB-573D3B4BEA59}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{307A6D8F-1E14-4D39-B2E3-F5820DBF99F9} = {07207970-3D59-4C16-8C21-3F9021465B4A}
+		{FF8AC07F-C72F-41C9-9242-613B60FF7780} = {669F3D41-5F78-4CAF-A145-EE64A2882A9F}
+		{F6134ECB-2395-4643-AEBB-573D3B4BEA59} = {669F3D41-5F78-4CAF-A145-EE64A2882A9F}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,51 @@
+{
+  "version": "1.0.0",
+  "packOptions": {
+    "owners": [ "Marcin Smółka" ],
+    "licenseUrl": "https://raw.githubusercontent.com/msmolka/ZNetCS.AspNetCore.Compression/master/LICENSE",
+    "projectUrl": "https://github.com/msmolka/ZNetCS.AspNetCore.Compression",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/msmolka/ZNetCS.AspNetCore.Compression"
+    },
+    "tags": [
+      "aspnetcore",
+      "aspnetcoremvc",
+      "middleware",
+      "compression",
+      "ASP.NET",
+      "MVC",
+      "gzip",
+      "deflate",
+      "request",
+      "response"
+    ]
+  },
+  "description": "A small package to allow decompress incoming request and compress outgoing response inside ASP.NET Core application.",
+  "copyright": "Marcin Smółka zNET Computer Solutions",
+  "authors": [ "Marcin Smółka" ],
+  "buildOptions": {
+    "warningsAsErrors": true,
+    "xmlDoc": true,
+    "additionalArguments": [ "/ruleset:../../CommonRuleSet.ruleset", "/additionalfile:../../stylecop.json" ]
+  },
+
+  "dependencies": {
+    "Microsoft.AspNetCore.Http.Abstractions": "1.0.0-*",   
+    "Microsoft.Extensions.DependencyInjection.Abstractions": "1.0.0-*",
+    "Microsoft.Extensions.Logging": "1.0.0-*",
+    "Microsoft.Extensions.Options": "1.0.0-*",
+    "Microsoft.Net.Http.Headers": "1.0.0-*",
+    "System.Diagnostics.Tools": "*",
+    "System.IO.Compression": "*",
+    "StyleCop.Analyzers": {
+      "version": "1.0.0",
+      "type": "build"
+    }
+  },
+
+  "frameworks": {
+    "net451": {},
+    "netstandard1.6": {}
+  }
+}
