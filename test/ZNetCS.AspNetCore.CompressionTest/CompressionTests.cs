@@ -66,6 +66,7 @@ namespace ZNetCS.AspNetCore.CompressionTest
                 Assert.AreEqual(Helpers.ResponseText, responseText, "Response Text not equal");
                 Assert.AreEqual(124, response.Content.Headers.ContentLength, "Content-Length != 124");
                 Assert.AreEqual(false, response.Content.Headers.ContentEncoding.Any(), "Content-Encoding != null");
+                Assert.AreEqual(false, response.Headers.Vary.Contains(HeaderNames.AcceptEncoding), "Vary != Accept-Encoding");
             }
         }
 
@@ -93,6 +94,7 @@ namespace ZNetCS.AspNetCore.CompressionTest
                 Assert.AreEqual(Helpers.ResponseText, responseText, "Response Text not equal");
                 Assert.AreEqual(124, response.Content.Headers.ContentLength, "Content-Length != 124");
                 Assert.AreEqual(false, response.Content.Headers.ContentEncoding.Any(), "Content-Encoding != null");
+                Assert.AreEqual(false, response.Headers.Vary.Contains(HeaderNames.AcceptEncoding), "Vary != Accept-Encoding");
             }
         }
 
@@ -131,6 +133,7 @@ namespace ZNetCS.AspNetCore.CompressionTest
                 Assert.AreEqual(67, response.Content.Headers.ContentLength, "Content-Length != 67");
                 Assert.AreEqual(true, response.Content.Headers.ContentEncoding.Any(), "Content-Encoding == null");
                 Assert.AreEqual("deflate", response.Content.Headers.ContentEncoding.ToString(), "Content-Encoding != deflate");
+                Assert.AreEqual(true, response.Headers.Vary.Contains(HeaderNames.AcceptEncoding), "Vary != Accept-Encoding");
             }
         }
 
@@ -169,6 +172,7 @@ namespace ZNetCS.AspNetCore.CompressionTest
                 Assert.AreEqual(85, response.Content.Headers.ContentLength, "Content-Length != 85");
                 Assert.AreEqual(true, response.Content.Headers.ContentEncoding.Any(), "Content-Encoding == null");
                 Assert.AreEqual("gzip", response.Content.Headers.ContentEncoding.ToString(), "Content-Encoding != gzip");
+                Assert.AreEqual(true, response.Headers.Vary.Contains(HeaderNames.AcceptEncoding), "Vary != Accept-Encoding");
             }
         }
 

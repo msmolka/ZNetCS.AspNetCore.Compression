@@ -3,7 +3,7 @@
 [![NuGet](https://img.shields.io/nuget/v/ZNetCS.AspNetCore.Compression.svg)](https://www.nuget.org/packages/ZNetCS.AspNetCore.Compression)
 
 A small package to allow decompress incoming request and compress outgoing response inside ASP.NET Core application.
-This package by default supports GZIP and Deflate compressin and decompression.
+This package by default supports GZIP and Deflate compression and decompression.
 
 
 ## Installing 
@@ -22,7 +22,7 @@ When you install the package, it should be added to your `package.json`. Alterna
 ```json
 {
   "dependencies" : {
-    "ZNetCS.AspNetCore.Compression": "1.0.0"
+    "ZNetCS.AspNetCore.Compression": "1.0.1"
   }
 }
 ```
@@ -51,7 +51,7 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerF
 }
 ```
 
-You can alternatively setup additional options for commpression and decompression
+You can alternatively setup additional options for compression and decompression
 
 ```csharp
 public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)

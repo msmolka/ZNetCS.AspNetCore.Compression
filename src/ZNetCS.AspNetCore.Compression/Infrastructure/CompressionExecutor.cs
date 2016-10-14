@@ -164,6 +164,14 @@ namespace ZNetCS.AspNetCore.Compression.Infrastructure
                     contentEncodings = contentEncodings.Concat(new[] { compressor.ContentCoding }).ToArray();
                     context.Response.Headers[HeaderNames.ContentEncoding] = new StringValues(contentEncodings);
 
+                    // the good practice is to add vary header
+                    var vary = context.Response.Headers.GetCommaSeparatedValues(HeaderNames.Vary) ?? new string[0];
+                    if (!vary.Contains(HeaderNames.AcceptEncoding))
+                    {
+                        vary = vary.Concat(new[] { HeaderNames.AcceptEncoding }).ToArray();
+                        context.Response.Headers[HeaderNames.Vary] = new StringValues(vary);
+                    }
+
                     await compressionStream.CopyToAsync(context.Response.Body, Consts.DefaultBufferSize, cancellationToken);
                 }
 
