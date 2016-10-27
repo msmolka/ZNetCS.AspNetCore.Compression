@@ -21,7 +21,32 @@ namespace ZNetCS.AspNetCore.Compression.Compressors
     /// </summary>
     public class GZipCompressor : CompressorBase
     {
+        #region Constructors and Destructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GZipCompressor"/> class.
+        /// </summary>
+        public GZipCompressor() : this(CompressionLevel.Optimal)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GZipCompressor"/> class.
+        /// </summary>
+        /// <param name="compressionLevel">
+        /// The compression level.
+        /// </param>
+        public GZipCompressor(CompressionLevel compressionLevel)
+        {
+            this.CompressionLevel = compressionLevel;
+        }
+
+        #endregion
+
         #region Public Properties
+
+        /// <inheritdoc />
+        public override CompressionLevel CompressionLevel { get; }
 
         /// <inheritdoc />
         public override string ContentCoding => "gzip";
@@ -33,7 +58,7 @@ namespace ZNetCS.AspNetCore.Compression.Compressors
         /// <inheritdoc />
         protected override Stream CreateCompressionStream(Stream compressedDestination)
         {
-            return new GZipStream(compressedDestination, CompressionMode.Compress, leaveOpen: true);
+            return new GZipStream(compressedDestination, this.CompressionLevel, leaveOpen: true);
         }
 
         #endregion

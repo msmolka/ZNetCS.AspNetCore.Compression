@@ -12,6 +12,7 @@ namespace ZNetCS.AspNetCore.Compression
     #region Usings
 
     using System.IO;
+    using System.IO.Compression;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -22,6 +23,15 @@ namespace ZNetCS.AspNetCore.Compression
     /// </summary>
     public interface ICompressor : IContentCoding
     {
+        #region Public Properties
+
+        /// <summary>
+        /// Gets the compression level.
+        /// </summary>
+        CompressionLevel CompressionLevel { get; }
+
+        #endregion
+
         #region Public Methods
 
         /// <summary>

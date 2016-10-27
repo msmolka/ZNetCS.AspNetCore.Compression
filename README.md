@@ -87,4 +87,18 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerF
 
 The default options when empty constructor is used are listed above.
 
+Compressors also allow to specify compression level.
+
+```csharp
+public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+{
+	app.UseCompression(new CompressionOptions 
+	{
+			Compressors = new List<ICompressor> { new GZipCompressor(CompressionLevel.Fastest), new DeflateCompressor(CompressionLevel.Fastest) }
+	});
+
+	// other middleware e.g. MVC etc  
+}
+```
+
 

@@ -21,7 +21,32 @@ namespace ZNetCS.AspNetCore.Compression.Compressors
     /// </summary>
     public class DeflateCompressor : CompressorBase
     {
+        #region Constructors and Destructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DeflateCompressor"/> class.
+        /// </summary>
+        public DeflateCompressor() : this(CompressionLevel.Optimal)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DeflateCompressor"/> class.
+        /// </summary>
+        /// <param name="compressionLevel">
+        /// The compression level.
+        /// </param>
+        public DeflateCompressor(CompressionLevel compressionLevel)
+        {
+            this.CompressionLevel = compressionLevel;
+        }
+
+        #endregion
+
         #region Public Properties
+
+        /// <inheritdoc />
+        public override CompressionLevel CompressionLevel { get; }
 
         /// <inheritdoc />
         public override string ContentCoding => "deflate";
@@ -33,7 +58,7 @@ namespace ZNetCS.AspNetCore.Compression.Compressors
         /// <inheritdoc />
         protected override Stream CreateCompressionStream(Stream compressedDestination)
         {
-            return new DeflateStream(compressedDestination, CompressionMode.Compress, leaveOpen: true);
+            return new DeflateStream(compressedDestination, this.CompressionLevel, leaveOpen: true);
         }
 
         #endregion

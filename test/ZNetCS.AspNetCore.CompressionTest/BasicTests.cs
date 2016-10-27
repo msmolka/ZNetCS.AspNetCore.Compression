@@ -49,7 +49,7 @@ namespace ZNetCS.AspNetCore.CompressionTest
 
                 Assert.AreEqual(HttpStatusCode.OK, response.StatusCode, "StatusCode != OK");
                 Assert.AreEqual(Helpers.ResponseText, responseText, "Response Text not equal");
-                Assert.AreEqual(Helpers.ResponseText.Length, response.Content.Headers.ContentLength, "Content-Length invalid");
+                Assert.AreEqual(Helpers.ResponseText.Length, response.Content.Headers.ContentLength, $"Content-Length != {Helpers.ResponseText.Length}");
             }
         }
 
@@ -72,7 +72,7 @@ namespace ZNetCS.AspNetCore.CompressionTest
 
                 Assert.AreEqual(HttpStatusCode.OK, response.StatusCode, "StatusCode != OK");
                 Assert.AreEqual(Helpers.ResponseText, responseText, "Response Text not equal");
-                Assert.AreEqual(Helpers.ResponseText.Length, response.Content.Headers.ContentLength, "Content-Length invalid");
+                Assert.AreEqual(Helpers.ResponseText.Length, response.Content.Headers.ContentLength, $"Content-Length != {Helpers.ResponseText.Length}");
             }
         }
 
