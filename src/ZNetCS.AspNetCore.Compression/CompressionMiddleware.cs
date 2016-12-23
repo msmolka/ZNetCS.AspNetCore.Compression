@@ -91,13 +91,13 @@ namespace ZNetCS.AspNetCore.Compression
             var decompressionExecutor = context.RequestServices.GetRequiredService<DecompressionExecutor>();
 
             // first decompress incoming request
-            this.logger.LogInformation("Checking request for decompression: " + context.Request.Path);
+            this.logger.LogDebug("Checking request for decompression: " + context.Request.Path);
             if (decompressionExecutor.CanDecompress(context, this.options.Decompressors))
             {
                 await decompressionExecutor.ExecuteAsync(context, this.options.Decompressors, cancellationToken);
             }
 
-            this.logger.LogInformation("Checking response for compression: " + context.Request.Path);
+            this.logger.LogDebug("Checking response for compression: " + context.Request.Path);
             var compressionExecutor = context.RequestServices.GetRequiredService<CompressionExecutor>();
 
             // check we are supporting accepted encodings and request path is not ignored
@@ -108,15 +108,22 @@ namespace ZNetCS.AspNetCore.Compression
                     Stream bodyStream = context.Response.Body;
                     context.Response.Body = bufferedStream;
 
-                    await this.next.Invoke(context);
+                    try
+                    {
+                        await this.next.Invoke(context);
+                    }
+                    finally
+                    {
+                        context.Response.Body = bodyStream;
+                    }
 
-                    context.Response.Body = bodyStream;
                     bufferedStream.Seek(0, SeekOrigin.Begin);
 
                     // skip compression for small requests, and not allowed media types
                     if ((bufferedStream.Length < this.options.MinimumCompressionThreshold) || !compressionExecutor.CanCompress(context, this.options.AllowedMediaTypes))
                     {
                         // simply copy buffed value to output stream
+                        this.logger.LogDebug("Continue response without compression");
                         await bufferedStream.CopyToAsync(context.Response.Body, Consts.DefaultBufferSize, cancellationToken);
                     }
                     else
@@ -128,11 +135,11 @@ namespace ZNetCS.AspNetCore.Compression
             }
             else
             {
-                this.logger.LogInformation("Continue response without compression");
+                this.logger.LogDebug("Continue response without compression");
                 await this.next.Invoke(context);
             }
 
-            this.logger.LogInformation("Finished handling request.");
+            this.logger.LogDebug("Finished handling request.");
         }
 
         #endregion

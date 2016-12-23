@@ -144,7 +144,7 @@ namespace ZNetCS.AspNetCore.Compression.Infrastructure
 
             if (compressor != null)
             {
-                this.logger.LogInformation($"Compressing response using {compressor.ContentCoding} compressor.");
+                this.logger.LogDebug($"Compressing response using {compressor.ContentCoding} compressor.");
 
                 // we need to wrap to be able to count length after compression, body is unreadable
                 // also all headers needs to be set before data is starting to be copied to output body
@@ -175,7 +175,7 @@ namespace ZNetCS.AspNetCore.Compression.Infrastructure
                     await compressionStream.CopyToAsync(context.Response.Body, Consts.DefaultBufferSize, cancellationToken);
                 }
 
-                this.logger.LogInformation("Finished compressing request.");
+                this.logger.LogDebug("Finished compressing request.");
             }
         }
 

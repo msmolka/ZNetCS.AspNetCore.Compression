@@ -109,7 +109,7 @@ namespace ZNetCS.AspNetCore.Compression.Infrastructure
 
             if (decompressor != null)
             {
-                this.logger.LogInformation($"Decompressing request using {decompressor.ContentCoding} decompressor.");
+                this.logger.LogDebug($"Decompressing request using {decompressor.ContentCoding} decompressor.");
 
                 Stream decompressed = new MemoryStream();
 
@@ -141,7 +141,7 @@ namespace ZNetCS.AspNetCore.Compression.Infrastructure
                     context.Request.Body = decompressed;
                 }
 
-                this.logger.LogInformation("Finished decompressing request.");
+                this.logger.LogDebug("Finished decompressing request.");
             }
         }
 
