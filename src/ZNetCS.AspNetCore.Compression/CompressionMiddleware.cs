@@ -91,13 +91,13 @@ namespace ZNetCS.AspNetCore.Compression
             var decompressionExecutor = context.RequestServices.GetRequiredService<DecompressionExecutor>();
 
             // first decompress incoming request
-            this.logger.LogDebug("Checking request for decompression: " + context.Request.Path);
+            this.logger.LogDebug($"Checking request for decompression: {context.Request.Path}");
             if (decompressionExecutor.CanDecompress(context, this.options.Decompressors))
             {
                 await decompressionExecutor.ExecuteAsync(context, this.options.Decompressors, cancellationToken);
             }
 
-            this.logger.LogDebug("Checking response for compression: " + context.Request.Path);
+            this.logger.LogDebug($"Checking response for compression: : {context.Request.Path}");
             var compressionExecutor = context.RequestServices.GetRequiredService<CompressionExecutor>();
 
             // check we are supporting accepted encodings and request path is not ignored

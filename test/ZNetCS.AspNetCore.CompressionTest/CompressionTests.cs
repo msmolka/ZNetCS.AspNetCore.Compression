@@ -272,7 +272,7 @@ namespace ZNetCS.AspNetCore.CompressionTest
 
                 Assert.AreEqual(HttpStatusCode.OK, response.StatusCode, "StatusCode != OK");
                 Assert.AreEqual(Helpers.ResponseText, responseText, "Response Text not equal");
-                Assert.AreEqual(147, response.Content.Headers.ContentLength, $"Content-Length != 147");
+                Assert.AreEqual(147, response.Content.Headers.ContentLength, "Content-Length != 147");
                 Assert.AreEqual(true, response.Content.Headers.ContentEncoding.Any(), "Content-Encoding == null");
                 Assert.AreEqual("gzip", response.Content.Headers.ContentEncoding.ToString(), "Content-Encoding != gzip");
                 Assert.AreEqual(true, response.Headers.Vary.Contains(HeaderNames.AcceptEncoding), "Vary != Accept-Encoding");

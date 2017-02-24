@@ -85,7 +85,7 @@ namespace ZNetCS.AspNetCore.Compression.TestWebSite
         /// </summary>
         /// <param name="services">
         /// The service collection.
-        /// </param>        
+        /// </param>
         [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "OK")]
         public void ConfigureServices(IServiceCollection services)
         {

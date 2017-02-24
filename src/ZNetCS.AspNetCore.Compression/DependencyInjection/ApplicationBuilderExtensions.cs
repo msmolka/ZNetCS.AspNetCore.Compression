@@ -31,12 +31,11 @@ namespace ZNetCS.AspNetCore.Compression.DependencyInjection
         /// requests and responses based on information provided by the client.
         /// </summary>
         /// <param name="app">
-        /// The <see cref="IApplicationBuilder"/>.
+        /// The <see cref="IApplicationBuilder"/> to use compression on.
         /// </param>
         /// <returns>
-        /// The <see cref="IApplicationBuilder"/>.
+        /// The <see cref="IApplicationBuilder"/> so that assitional calls can be chained.
         /// </returns>
-        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1625:ElementDocumentationMustNotBeCopiedAndPasted", Justification = "OK")]
         [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "OK")]
         public static IApplicationBuilder UseCompression(this IApplicationBuilder app)
         {
@@ -53,15 +52,14 @@ namespace ZNetCS.AspNetCore.Compression.DependencyInjection
         /// requests and responses based on information provided by the client.
         /// </summary>
         /// <param name="app">
-        /// The <see cref="IApplicationBuilder"/>.
+        /// The <see cref="IApplicationBuilder"/> to use compression on.
         /// </param>
         /// <param name="options">
         /// The <see cref="CompressionOptions"/> to configure the middleware with.
         /// </param>
         /// <returns>
-        /// The <see cref="IApplicationBuilder"/>.
+        /// The <see cref="IApplicationBuilder"/> so that assitional calls can be chained.
         /// </returns>
-        [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1625:ElementDocumentationMustNotBeCopiedAndPasted", Justification = "OK")]
         [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "OK")]
         public static IApplicationBuilder UseCompression(
             this IApplicationBuilder app,
