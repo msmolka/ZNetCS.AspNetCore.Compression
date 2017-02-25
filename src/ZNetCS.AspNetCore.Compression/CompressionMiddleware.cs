@@ -97,7 +97,7 @@ namespace ZNetCS.AspNetCore.Compression
                 await decompressionExecutor.ExecuteAsync(context, this.options.Decompressors, cancellationToken);
             }
 
-            this.logger.LogDebug($"Checking response for compression: : {context.Request.Path}");
+            this.logger.LogDebug($"Checking response for compression: {context.Request.Path}");
             var compressionExecutor = context.RequestServices.GetRequiredService<CompressionExecutor>();
 
             // check we are supporting accepted encodings and request path is not ignored
@@ -118,6 +118,13 @@ namespace ZNetCS.AspNetCore.Compression
                     }
 
                     bufferedStream.Seek(0, SeekOrigin.Begin);
+
+                    if ((bufferedStream.Length <= 0) || !context.Response.Body.CanWrite)
+                    {
+                        // there is no content so there is no need to compress - this prevents errors on no content result.
+                        this.logger.LogDebug("Continue response without writing any body");
+                        return;
+                    }
 
                     // skip compression for small requests, and not allowed media types
                     if ((bufferedStream.Length < this.options.MinimumCompressionThreshold) || !compressionExecutor.CanCompress(context, this.options.AllowedMediaTypes))

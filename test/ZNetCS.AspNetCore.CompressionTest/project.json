@@ -5,6 +5,7 @@
 
   "buildOptions": {
     "warningsAsErrors": false,
+    "xmlDoc": true,
     "additionalArguments": [ "/ruleset:../../CommonRuleSet.ruleset", "/additionalfile:../../stylecop.json" ]
   },
 
