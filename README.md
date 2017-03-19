@@ -14,7 +14,7 @@ Install using the [ZNetCS.AspNetCore.Compression NuGet package](https://www.nuge
 PM> Install-Package ZNetCS.AspNetCore.Compression
 ```
 
-##Usage 
+## Usage 
 
 When you install the package, it should be added to your `package.json`. Alternatively, you can add it directly by adding:
 
