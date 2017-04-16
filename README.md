@@ -58,7 +58,7 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerF
 {
 	app.UseCompression(new CompressionOptions 
 	{
-			AllowedMediaTypes = new List<MediaTypeHeaderValue>
+	    AllowedMediaTypes = new List<MediaTypeHeaderValue>
             {
                 MediaTypeHeaderValue.Parse("text/*"),
                 MediaTypeHeaderValue.Parse("message/*"),
@@ -69,15 +69,15 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerF
                 MediaTypeHeaderValue.Parse("application/atom+xml"),
                 MediaTypeHeaderValue.Parse("application/xaml+xml")
             },
-			IgnoredPaths = new List<string>
+	    IgnoredPaths = new List<string>
             {
                 "/css/",
                 "/images/",
                 "/js/",
                 "/lib/"
             },
-			MinimumCompressionThreshold = 860,
-			Compressors = new List<ICompressor> { new GZipCompressor(), new DeflateCompressor() },
+	    MinimumCompressionThreshold = 860,
+	    Compressors = new List<ICompressor> { new GZipCompressor(), new DeflateCompressor() },
             Decompressors = new List<IDecompressor> { new GZipDecompressor(), new DeflateDecompressor() }
 	});
 
@@ -94,7 +94,7 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerF
 {
 	app.UseCompression(new CompressionOptions 
 	{
-			Compressors = new List<ICompressor> { new GZipCompressor(CompressionLevel.Fastest), new DeflateCompressor(CompressionLevel.Fastest) }
+	    Compressors = new List<ICompressor> { new GZipCompressor(CompressionLevel.Fastest), new DeflateCompressor(CompressionLevel.Fastest) }
 	});
 
 	// other middleware e.g. MVC etc  
