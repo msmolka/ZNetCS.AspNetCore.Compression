@@ -14,20 +14,18 @@ Install using the [ZNetCS.AspNetCore.Compression NuGet package](https://www.nuge
 PM> Install-Package ZNetCS.AspNetCore.Compression
 ```
 
-##Usage 
+## Usage
 
-When you install the package, it should be added to your `package.json`. Alternatively, you can add it directly by adding:
+When you install the package, it should be added to your `.csproj`. Alternatively, you can add it directly by adding:
 
 
-```json
-{
-  "dependencies" : {
-    "ZNetCS.AspNetCore.Compression": "1.0.4"
-  }
-}
+```xml
+<ItemGroup>
+    <PackageReference Include="ZNetCS.AspNetCore.Compression" Version="1.0.4" />    
+</ItemGroup>
 ```
 
-In order to use the Compression middleware, you must configure the services in the `ConfigureServices` and `Configure` call of `Startup`: 
+In order to use the Compression middleware, you must configure the services in the `ConfigureServices` and `Configure` call of `Startup`:
 
 ```csharp
 using ZNetCS.AspNetCore.Compression.DependencyInjection;
@@ -45,9 +43,9 @@ public void ConfigureServices(IServiceCollection services)
 
 public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
 {
-	app.UseCompression();
+    app.UseCompression();
 
-	// other middleware e.g. MVC etc
+    // other middleware e.g. MVC etc
 }
 ```
 
@@ -56,9 +54,9 @@ You can alternatively setup additional options for compression and decompression
 ```csharp
 public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
 {
-	app.UseCompression(new CompressionOptions 
-	{
-			AllowedMediaTypes = new List<MediaTypeHeaderValue>
+    app.UseCompression(new CompressionOptions 
+    {
+            AllowedMediaTypes = new List<MediaTypeHeaderValue>
             {
                 MediaTypeHeaderValue.Parse("text/*"),
                 MediaTypeHeaderValue.Parse("message/*"),
@@ -69,19 +67,19 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerF
                 MediaTypeHeaderValue.Parse("application/atom+xml"),
                 MediaTypeHeaderValue.Parse("application/xaml+xml")
             },
-			IgnoredPaths = new List<string>
+            IgnoredPaths = new List<string>
             {
                 "/css/",
                 "/images/",
                 "/js/",
                 "/lib/"
             },
-			MinimumCompressionThreshold = 860,
-			Compressors = new List<ICompressor> { new GZipCompressor(), new DeflateCompressor() },
+            MinimumCompressionThreshold = 860,
+            Compressors = new List<ICompressor> { new GZipCompressor(), new DeflateCompressor() },
             Decompressors = new List<IDecompressor> { new GZipDecompressor(), new DeflateDecompressor() }
-	});
+    });
 
-	// other middleware e.g. MVC etc  
+    // other middleware e.g. MVC etc  
 }
 ```
 
@@ -92,12 +90,12 @@ Compressors also allow to specify compression level.
 ```csharp
 public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
 {
-	app.UseCompression(new CompressionOptions 
-	{
-			Compressors = new List<ICompressor> { new GZipCompressor(CompressionLevel.Fastest), new DeflateCompressor(CompressionLevel.Fastest) }
-	});
+    app.UseCompression(new CompressionOptions 
+    {
+            Compressors = new List<ICompressor> { new GZipCompressor(CompressionLevel.Fastest), new DeflateCompressor(CompressionLevel.Fastest) }
+    });
 
-	// other middleware e.g. MVC etc  
+    // other middleware e.g. MVC etc  
 }
 ```
 
