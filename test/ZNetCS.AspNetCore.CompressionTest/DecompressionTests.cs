@@ -71,7 +71,7 @@ namespace ZNetCS.AspNetCore.CompressionTest
 
                     var content = new ByteArrayContent(compressedBytes);
                     content.Headers.Add(HeaderNames.ContentEncoding, "deflate");
-                    content.Headers.Add(HeaderNames.ContentLength, HeaderUtilities.FormatInt64(compressedBytes.Length));
+                    content.Headers.Add(HeaderNames.ContentLength, HeaderUtilities.FormatNonNegativeInt64(compressedBytes.Length));
 
                     response = await client.PutAsync("/", content);
 
@@ -131,7 +131,7 @@ namespace ZNetCS.AspNetCore.CompressionTest
 
                     var content = new ByteArrayContent(compressedBytes);
                     content.Headers.Add(HeaderNames.ContentEncoding, "gzip");
-                    content.Headers.Add(HeaderNames.ContentLength, HeaderUtilities.FormatInt64(compressedBytes.Length));
+                    content.Headers.Add(HeaderNames.ContentLength, HeaderUtilities.FormatNonNegativeInt64(compressedBytes.Length));
 
                     response = await client.PutAsync("/", content);
 
@@ -180,7 +180,7 @@ namespace ZNetCS.AspNetCore.CompressionTest
 
                     var content = new ByteArrayContent(compressedBytes);
                     content.Headers.Add(HeaderNames.ContentEncoding, "gzip");
-                    content.Headers.Add(HeaderNames.ContentLength, HeaderUtilities.FormatInt64(compressedBytes.Length));
+                    content.Headers.Add(HeaderNames.ContentLength, HeaderUtilities.FormatNonNegativeInt64(compressedBytes.Length));
 
                     response = await client.PutAsync("/", content);
 
@@ -262,7 +262,7 @@ namespace ZNetCS.AspNetCore.CompressionTest
                     client.DefaultRequestHeaders.Add(HeaderNames.AcceptEncoding, "gzip");
 
                     var content = new ByteArrayContent(compressedBytes);
-                    content.Headers.Add(HeaderNames.ContentLength, HeaderUtilities.FormatInt64(compressedBytes.Length));
+                    content.Headers.Add(HeaderNames.ContentLength, HeaderUtilities.FormatNonNegativeInt64(compressedBytes.Length));
 
                     response = await client.PutAsync("/", content);
 

@@ -77,8 +77,7 @@ namespace ZNetCS.AspNetCore.Compression.Infrastructure
             }
 
             // check if content type is allowed to be compressed
-            MediaTypeHeaderValue contentType;
-            return MediaTypeHeaderValue.TryParse(context.Response.ContentType, out contentType)
+            return MediaTypeHeaderValue.TryParse(context.Response.ContentType, out MediaTypeHeaderValue contentType)
                    && allowedMediaTypes.Any(m => contentType.Equals(m) || contentType.IsSubsetOf(m));
         }
 
@@ -119,7 +118,7 @@ namespace ZNetCS.AspNetCore.Compression.Infrastructure
             }
 
             // check if there is available compressor
-            var acceptEncodings = this.GetAcceptEncodings(context).Select(a => a.Value);
+            var acceptEncodings = this.GetAcceptEncodings(context).Select(a => a.Value.ToString());
             return compressors.Any(c => acceptEncodings.Contains(c.ContentCoding, StringComparer.OrdinalIgnoreCase));
         }
 
@@ -200,7 +199,7 @@ namespace ZNetCS.AspNetCore.Compression.Infrastructure
 
             foreach (StringWithQualityHeaderValue ae in acceptEncodings)
             {
-                if ((compressor = compressors.FirstOrDefault(c => c.ContentCoding.Equals(ae.Value, StringComparison.OrdinalIgnoreCase))) != null)
+                if ((compressor = compressors.FirstOrDefault(c => c.ContentCoding.Equals(ae.Value.ToString(), StringComparison.OrdinalIgnoreCase))) != null)
                 {
                     break;
                 }
@@ -227,7 +226,7 @@ namespace ZNetCS.AspNetCore.Compression.Infrastructure
             // 4. If multiple content-codings are acceptable, then the acceptable
             // content-coding with the highest non-zero qvalue is preferred.
             return accpetEncodings
-                .Select(StringWithQualityHeaderValue.Parse)
+                .Select(a => StringWithQualityHeaderValue.Parse(a))
                 .Where(e => (e.Quality == null) || (e.Quality > 0))
                 .OrderByDescending(e => e.Quality ?? 1);
         }
