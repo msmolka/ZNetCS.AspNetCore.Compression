@@ -15,7 +15,7 @@ PM> Install-Package ZNetCS.AspNetCore.Compression
 ```
 
 # ASP CORE 2.0
-The previous version 1.0.4 is not compatible with Core 2.0. There are breaking chnages in that relase. So this is only compilation and code fixes to make project compatible again.
+The previous version 1.0.4 is not compatible with Core 2.0. There are breaking changes in that relase. So this is only compilation and code fixes to make project compatible again.
 
 ## Usage
 
@@ -23,7 +23,7 @@ When you install the package, it should be added to your `.csproj`. Alternativel
 
 ```xml
 <ItemGroup>
-    <PackageReference Include="ZNetCS.AspNetCore.Compression" Version="1.0.5" />    
+    <PackageReference Include="ZNetCS.AspNetCore.Compression" Version="2.0.0" />
 </ItemGroup>
 ```
 
