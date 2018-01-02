@@ -171,6 +171,9 @@ namespace ZNetCS.AspNetCore.Compression.Infrastructure
                         context.Response.Headers[HeaderNames.Vary] = new StringValues(vary);
                     }
 
+                    // remove content md5, because content changes and header is already deprecated.
+                    context.Response.Headers.Remove(HeaderNames.ContentMD5);
+
                     await compressionStream.CopyToAsync(context.Response.Body, Consts.DefaultBufferSize, cancellationToken);
                 }
 

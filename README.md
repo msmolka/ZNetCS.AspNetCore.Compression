@@ -5,6 +5,8 @@
 A small package to allow decompress incoming request and compress outgoing response inside ASP.NET Core application.
 This package by default supports GZIP and Deflate compression and decompression.
 
+This package compresses all content in memory before sending it to client to provide new `Content-Length`.
+
 
 ## Installing 
 
@@ -14,8 +16,8 @@ Install using the [ZNetCS.AspNetCore.Compression NuGet package](https://www.nuge
 PM> Install-Package ZNetCS.AspNetCore.Compression
 ```
 
-# ASP CORE 2.0
-The previous version 1.0.4 is not compatible with Core 2.0. There are breaking changes in that relase. So this is only compilation and code fixes to make project compatible again.
+# ASP.NET CORE 2.0
+The previous version 1.0.4 is not compatible with Core 2.0. There are breaking changes in that release. So this is only compilation and code fixes to make project compatible again.
 
 ## Usage
 
