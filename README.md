@@ -16,9 +16,6 @@ Install using the [ZNetCS.AspNetCore.Compression NuGet package](https://www.nuge
 PM> Install-Package ZNetCS.AspNetCore.Compression
 ```
 
-# ASP.NET CORE 2.0
-The previous version 1.0.4 is not compatible with Core 2.0. There are breaking changes in that release. So this is only compilation and code fixes to make project compatible again.
-
 ## Usage
 
 When you install the package, it should be added to your `.csproj`. Alternatively, you can add it directly by adding:
