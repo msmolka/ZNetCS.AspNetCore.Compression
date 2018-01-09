@@ -97,12 +97,18 @@ Compressors also allow to specify compression level.
 ```csharp
 public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
 {
-    app.UseCompression(new CompressionOptions 
-    {
-            Compressors = new List<ICompressor> { new GZipCompressor(CompressionLevel.Fastest), new DeflateCompressor(CompressionLevel.Fastest) }
-    });
+    app.UseCompression();
 
     // other middleware e.g. MVC etc  
+}
+
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddCompression(
+        options =>
+        {
+            options.Compressors = new List<ICompressor> { new GZipCompressor(CompressionLevel.Fastest), new DeflateCompressor(CompressionLevel.Fastest) };
+        });
 }
 ```
 
