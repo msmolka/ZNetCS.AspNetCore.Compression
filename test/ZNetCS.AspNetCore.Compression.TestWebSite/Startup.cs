@@ -50,29 +50,28 @@ namespace ZNetCS.AspNetCore.Compression.TestWebSite
             loggerFactory.AddConsole();
             loggerFactory.AddDebug();
 
-            app.UseCompression(
-                new CompressionOptions
+            app.UseCompression();
+
+            app.Map(
+                "/lib/ignore",
+                builder =>
                 {
-                    AllowedMediaTypes = new List<MediaTypeHeaderValue>
-                    {
-                        MediaTypeHeaderValue.Parse("*/*")
-                    },
-                    IgnoredPaths = new List<string>
-                    {
-                        "/css/",
-                        "/images/",
-                        "/js/",
-                        "/lib/"
-                    },
-                    MinimumCompressionThreshold = 860,
-                    Compressors = new List<ICompressor> { new GZipCompressor(), new DeflateCompressor() },
-                    Decompressors = new List<IDecompressor> { new GZipDecompressor(), new DeflateDecompressor() }
+                    builder.Run(
+                        async context =>
+                        {
+                            await context.Response.WriteAsync(
+                                "0123456789abcdefghijklmnopgrstuvwxyzABCDEFGHIJKLMNOPGRSTUVWXYZ0123456789abcdefghijklmnopgrstuvwxyzABCDEFGHIJKLMNOPGRSTUVWXYZ");
+
+                            context.Response.ContentType = "text/plain";
+                            context.Response.ContentLength = 124;
+                        });
                 });
 
             app.Run(
                 async context =>
                 {
-                    await context.Response.WriteAsync("0123456789abcdefghijklmnopgrstuvwxyzABCDEFGHIJKLMNOPGRSTUVWXYZ0123456789abcdefghijklmnopgrstuvwxyzABCDEFGHIJKLMNOPGRSTUVWXYZ");
+                    await context.Response.WriteAsync(
+                        "0123456789abcdefghijklmnopgrstuvwxyzABCDEFGHIJKLMNOPGRSTUVWXYZ0123456789abcdefghijklmnopgrstuvwxyzABCDEFGHIJKLMNOPGRSTUVWXYZ");
 
                     context.Response.ContentType = "text/plain";
                     context.Response.ContentLength = 124;
@@ -89,7 +88,21 @@ namespace ZNetCS.AspNetCore.Compression.TestWebSite
         [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "OK")]
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCompression();
+            services.AddCompression(
+                options =>
+                {
+                    options.AllowedMediaTypes = new List<MediaTypeHeaderValue> { MediaTypeHeaderValue.Parse("*/*") };
+                    options.IgnoredPaths = new List<string>
+                    {
+                        "/css/",
+                        "/images/",
+                        "/js/",
+                        "/lib/"
+                    };
+                    options.MinimumCompressionThreshold = 860;
+                    options.Compressors = new List<ICompressor> { new GZipCompressor(), new DeflateCompressor() };
+                    options.Decompressors = new List<IDecompressor> { new GZipDecompressor(), new DeflateDecompressor() };
+                });
         }
 
         #endregion

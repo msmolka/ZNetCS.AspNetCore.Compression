@@ -48,12 +48,11 @@ namespace ZNetCS.AspNetCore.CompressionTest
         {
             // Arrange
             using (var server = new TestServer(
-                this.CreateBuilder(
-                    new CompressionOptions
-                    {
-                        MinimumCompressionThreshold = 0,
-                        AllowedMediaTypes = new List<MediaTypeHeaderValue> { MediaTypeHeaderValue.Parse("text/html") }
-                    })))
+                this.CreateBuilder(options =>
+                {
+                    options.MinimumCompressionThreshold = 0;
+                    options.AllowedMediaTypes = new List<MediaTypeHeaderValue> { MediaTypeHeaderValue.Parse("text/html") };
+                })))
             {
                 // Act
                 RequestBuilder request = server.CreateRequest("/");
@@ -71,6 +70,47 @@ namespace ZNetCS.AspNetCore.CompressionTest
                 Assert.AreEqual(124, response.Content.Headers.ContentLength, "Content-Length != 124");
                 Assert.AreEqual(false, response.Content.Headers.ContentEncoding.Any(), "Content-Encoding != null");
                 Assert.AreEqual(false, response.Headers.Vary.Contains(HeaderNames.AcceptEncoding), "Vary != Accept-Encoding");
+            }
+        }
+
+        /// <summary>
+        /// The compression with no content response.
+        /// </summary>
+        [TestMethod]
+        public async Task CompressionNoContentResponseTest()
+        {
+            IWebHostBuilder builder = new WebHostBuilder()
+                .ConfigureServices(s => s.AddCompression(options => { options.MinimumCompressionThreshold = 100; }))
+                .Configure(
+                    app =>
+                    {
+                        app.UseCompression();
+                        app.Run(
+                            c =>
+                            {
+                                c.Response.ContentType = "text/plain";
+                                c.Response.StatusCode = (int)HttpStatusCode.NoContent;
+
+                                return Task.CompletedTask;
+                            });
+                    });
+
+            using (var server = new TestServer(builder))
+            {
+                // Act
+                RequestBuilder request = server.CreateRequest("/");
+                request.AddHeader(HeaderNames.AcceptEncoding, "gzip");
+
+                HttpResponseMessage response = await request.SendAsync("PUT");
+
+                // Assert
+                response.EnsureSuccessStatusCode();
+
+                string responseText = await response.Content.ReadAsStringAsync();
+
+                Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode, "StatusCode != NoContent");
+                Assert.AreEqual(string.Empty, responseText, "Response Text not empty");
+                Assert.AreEqual(0, response.Content.Headers.ContentLength, "Content-Length != 0");
             }
         }
 
@@ -112,12 +152,11 @@ namespace ZNetCS.AspNetCore.CompressionTest
             using (
                 var server =
                     new TestServer(
-                        this.CreateBuilder(
-                            new CompressionOptions
-                            {
-                                MinimumCompressionThreshold = 0,
-                                Compressors = new List<ICompressor> { new DeflateCompressor(CompressionLevel.Fastest) }
-                            })))
+                        this.CreateBuilder(options =>
+                        {
+                            options.MinimumCompressionThreshold = 0;
+                            options.Compressors = new List<ICompressor> { new DeflateCompressor(CompressionLevel.Fastest) };
+                        })))
             {
                 // Act
                 RequestBuilder request = server.CreateRequest("/");
@@ -156,7 +195,7 @@ namespace ZNetCS.AspNetCore.CompressionTest
         public async Task CompressionThresholdZeroDeflateTest()
         {
             // Arrange
-            using (var server = new TestServer(this.CreateBuilder(new CompressionOptions { MinimumCompressionThreshold = 0 })))
+            using (var server = new TestServer(this.CreateBuilder(options => { options.MinimumCompressionThreshold = 0; })))
             {
                 // Act
                 RequestBuilder request = server.CreateRequest("/");
@@ -198,12 +237,11 @@ namespace ZNetCS.AspNetCore.CompressionTest
             using (
                 var server =
                     new TestServer(
-                        this.CreateBuilder(
-                            new CompressionOptions
-                            {
-                                MinimumCompressionThreshold = 0,
-                                Compressors = new List<ICompressor> { new GZipCompressor(CompressionLevel.Fastest) }
-                            })))
+                        this.CreateBuilder(options =>
+                        {
+                            options.MinimumCompressionThreshold = 0;
+                            options.Compressors = new List<ICompressor> { new GZipCompressor(CompressionLevel.Fastest) };
+                        })))
             {
                 // Act
                 RequestBuilder request = server.CreateRequest("/");
@@ -245,12 +283,11 @@ namespace ZNetCS.AspNetCore.CompressionTest
             using (
                 var server =
                     new TestServer(
-                        this.CreateBuilder(
-                            new CompressionOptions
-                            {
-                                MinimumCompressionThreshold = 0,
-                                Compressors = new List<ICompressor> { new GZipCompressor(CompressionLevel.NoCompression) }
-                            })))
+                        this.CreateBuilder(options =>
+                        {
+                            options.MinimumCompressionThreshold = 0;
+                            options.Compressors = new List<ICompressor> { new GZipCompressor(CompressionLevel.NoCompression) };
+                        })))
             {
                 // Act
                 RequestBuilder request = server.CreateRequest("/");
@@ -289,7 +326,7 @@ namespace ZNetCS.AspNetCore.CompressionTest
         public async Task CompressionThresholdZeroGZipTest()
         {
             // Arrange
-            using (var server = new TestServer(this.CreateBuilder(new CompressionOptions { MinimumCompressionThreshold = 0 })))
+            using (var server = new TestServer(this.CreateBuilder(options => { options.MinimumCompressionThreshold = 0; })))
             {
                 // Act
                 RequestBuilder request = server.CreateRequest("/");
@@ -318,47 +355,6 @@ namespace ZNetCS.AspNetCore.CompressionTest
                 Assert.AreEqual(true, response.Content.Headers.ContentEncoding.Any(), "Content-Encoding == null");
                 Assert.AreEqual("gzip", response.Content.Headers.ContentEncoding.ToString(), "Content-Encoding != gzip");
                 Assert.AreEqual(true, response.Headers.Vary.Contains(HeaderNames.AcceptEncoding), "Vary != Accept-Encoding");
-            }
-        }
-
-        /// <summary>
-        /// The compression with no content response.
-        /// </summary>
-        [TestMethod]
-        public async Task CompressionNoContentResponseTest()
-        {
-            IWebHostBuilder builder = new WebHostBuilder()
-                .ConfigureServices(s => s.AddCompression())
-                .Configure(
-                    app =>
-                    {
-                        app.UseCompression(new CompressionOptions { MinimumCompressionThreshold = 100 });
-                        app.Run(
-                            c =>
-                            {
-                                c.Response.ContentType = "text/plain";
-                                c.Response.StatusCode = (int)HttpStatusCode.NoContent;
-
-                                return Task.CompletedTask;
-                            });
-                    });
-
-            using (var server = new TestServer(builder))
-            {
-                // Act
-                RequestBuilder request = server.CreateRequest("/");
-                request.AddHeader(HeaderNames.AcceptEncoding, "gzip");
-
-                HttpResponseMessage response = await request.SendAsync("PUT");
-
-                // Assert
-                response.EnsureSuccessStatusCode();
-
-                string responseText = await response.Content.ReadAsStringAsync();
-
-                Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode, "StatusCode != NoContent");
-                Assert.AreEqual(string.Empty, responseText, "Response Text not empty");
-                Assert.AreEqual(0, response.Content.Headers.ContentLength, "Content-Length != 0");
             }
         }
 

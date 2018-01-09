@@ -25,7 +25,7 @@ When you install the package, it should be added to your `.csproj`. Alternativel
 
 ```xml
 <ItemGroup>
-    <PackageReference Include="ZNetCS.AspNetCore.Compression" Version="2.0.0" />
+    <PackageReference Include="ZNetCS.AspNetCore.Compression" Version="2.0.2" />
 </ItemGroup>
 ```
 
@@ -58,9 +58,17 @@ You can alternatively setup additional options for compression and decompression
 ```csharp
 public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
 {
-    app.UseCompression(new CompressionOptions 
-    {
-            AllowedMediaTypes = new List<MediaTypeHeaderValue>
+    app.UseCompression();
+
+    // other middleware e.g. MVC etc  
+}
+
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddCompression(
+        options =>
+        {
+            options.AllowedMediaTypes = new List<MediaTypeHeaderValue>
             {
                 MediaTypeHeaderValue.Parse("text/*"),
                 MediaTypeHeaderValue.Parse("message/*"),
@@ -70,20 +78,18 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerF
                 MediaTypeHeaderValue.Parse("application/xml"),
                 MediaTypeHeaderValue.Parse("application/atom+xml"),
                 MediaTypeHeaderValue.Parse("application/xaml+xml")
-            },
-            IgnoredPaths = new List<string>
+            };
+            options.IgnoredPaths = new List<string>
             {
                 "/css/",
                 "/images/",
                 "/js/",
                 "/lib/"
-            },
-            MinimumCompressionThreshold = 860,
-            Compressors = new List<ICompressor> { new GZipCompressor(), new DeflateCompressor() },
-            Decompressors = new List<IDecompressor> { new GZipDecompressor(), new DeflateDecompressor() }
-    });
-
-    // other middleware e.g. MVC etc  
+            };
+            options.MinimumCompressionThreshold = 860;
+            options.Compressors = new List<ICompressor> { new GZipCompressor(), new DeflateCompressor() };
+            options.Decompressors = new List<IDecompressor> { new GZipDecompressor(), new DeflateDecompressor() };
+        });
 }
 ```
 

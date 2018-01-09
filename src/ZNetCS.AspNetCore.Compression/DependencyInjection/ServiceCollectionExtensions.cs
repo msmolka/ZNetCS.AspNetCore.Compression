@@ -51,6 +51,35 @@ namespace ZNetCS.AspNetCore.Compression.DependencyInjection
             return services;
         }
 
+        /// <summary>
+        /// Adds compression executor services to the specified <see cref="IServiceCollection"/>.
+        /// </summary>
+        /// <param name="services">
+        /// The <see cref="IServiceCollection"/> to add services to.
+        /// </param>
+        /// <param name="configure">
+        /// The <see cref="CompressionMiddleware"/> configuration delegate.
+        /// </param>
+        /// <returns>
+        /// The <see cref="IServiceCollection"/> so that additional calls can be chained.
+        /// </returns>
+        public static IServiceCollection AddCompression(this IServiceCollection services, Action<CompressionOptions> configure)
+        {
+            if (services == null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+
+            services.AddOptions();
+
+            services.Configure(configure);
+
+            services.TryAddSingleton<CompressionExecutor>();
+            services.TryAddSingleton<DecompressionExecutor>();
+
+            return services;
+        }
+
         #endregion
     }
 }

@@ -61,6 +61,7 @@ namespace ZNetCS.AspNetCore.Compression.DependencyInjection
         /// The <see cref="IApplicationBuilder"/> so that assitional calls can be chained.
         /// </returns>
         [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "OK")]
+        [Obsolete("Use " + nameof(ServiceCollectionExtensions.AddCompression) + " with configure options instead")]
         public static IApplicationBuilder UseCompression(
             this IApplicationBuilder app,
             CompressionOptions options)

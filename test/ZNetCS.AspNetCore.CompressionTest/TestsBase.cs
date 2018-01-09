@@ -11,6 +11,7 @@ namespace ZNetCS.AspNetCore.CompressionTest
 {
     #region Usings
 
+    using System;
     using System.IO;
 
     using Microsoft.AspNetCore.Builder;
@@ -32,22 +33,22 @@ namespace ZNetCS.AspNetCore.CompressionTest
         /// <summary>
         /// The create builder.
         /// </summary>
-        /// <param name="options">
-        /// The options.
+        /// <param name="configure">
+        /// The <see cref="CompressionMiddleware"/> configuration delegate.
         /// </param>
-        public IWebHostBuilder CreateBuilder(CompressionOptions options = null)
+        public IWebHostBuilder CreateBuilder(Action<CompressionOptions> configure = null)
         {
-            if (options == null)
+            if (configure == null)
             {
-                options = new CompressionOptions();
+                configure = options => { };
             }
 
             IWebHostBuilder builder = new WebHostBuilder()
-                .ConfigureServices(s => s.AddCompression())
+                .ConfigureServices(s => s.AddCompression(configure))
                 .Configure(
                     app =>
                     {
-                        app.UseCompression(options);
+                        app.UseCompression();
                         app.Run(
                             async c =>
                             {
@@ -63,22 +64,22 @@ namespace ZNetCS.AspNetCore.CompressionTest
         /// <summary>
         /// The create decompression builder.
         /// </summary>
-        /// <param name="options">
-        /// The options.
+        /// <param name="configure">
+        /// The <see cref="CompressionMiddleware"/> configuration delegate.
         /// </param>
-        public IWebHostBuilder CreateDecompressionBuilder(CompressionOptions options = null)
+        public IWebHostBuilder CreateDecompressionBuilder(Action<CompressionOptions> configure = null)
         {
-            if (options == null)
+            if (configure == null)
             {
-                options = new CompressionOptions();
+                configure = options => { };
             }
 
             IWebHostBuilder builder = new WebHostBuilder()
-                .ConfigureServices(s => s.AddCompression())
+                .ConfigureServices(s => s.AddCompression(configure))
                 .Configure(
                     app =>
                     {
-                        app.UseCompression(options);
+                        app.UseCompression();
                         app.Run(
                             async c =>
                             {

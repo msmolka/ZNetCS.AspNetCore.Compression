@@ -25,7 +25,6 @@ namespace ZNetCS.AspNetCore.CompressionTest
     using Microsoft.Net.Http.Headers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using ZNetCS.AspNetCore.Compression;
     using ZNetCS.AspNetCore.Compression.DependencyInjection;
 
     #endregion
@@ -45,7 +44,7 @@ namespace ZNetCS.AspNetCore.CompressionTest
         public async Task DecompressionDeflateTest()
         {
             // Arrange
-            using (var server = new TestServer(this.CreateDecompressionBuilder(new CompressionOptions { MinimumCompressionThreshold = 0 })))
+            using (var server = new TestServer(this.CreateDecompressionBuilder(options => { options.MinimumCompressionThreshold = 0; })))
             {
                 // Act
                 byte[] compressedBytes;
@@ -154,7 +153,7 @@ namespace ZNetCS.AspNetCore.CompressionTest
         public async Task DecompressionGZipTest()
         {
             // Arrange
-            using (var server = new TestServer(this.CreateDecompressionBuilder(new CompressionOptions { MinimumCompressionThreshold = 0 })))
+            using (var server = new TestServer(this.CreateDecompressionBuilder(options => { options.MinimumCompressionThreshold = 0; })))
             {
                 // Act
                 byte[] compressedBytes;
