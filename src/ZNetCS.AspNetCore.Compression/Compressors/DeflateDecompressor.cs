@@ -25,18 +25,15 @@ namespace ZNetCS.AspNetCore.Compression.Compressors
     {
         #region Public Properties
 
-        /// <inheritdoc />
+        /// <inheritdoc/>
         public override string ContentCoding => "deflate";
 
         #endregion
 
         #region Methods
 
-        /// <inheritdoc />
-        protected override Stream CreateDecompressionStream(Stream compressedSource)
-        {
-            return new DeflateStream(compressedSource, CompressionMode.Decompress, leaveOpen: true);
-        }
+        /// <inheritdoc/>
+        protected override Stream CreateDecompressionStream(Stream compressedSource) => new DeflateStream(compressedSource, CompressionMode.Decompress, true);
 
         #endregion
     }

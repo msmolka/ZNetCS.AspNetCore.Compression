@@ -15,14 +15,11 @@ namespace ZNetCS.AspNetCore.Compression.TestWebSite
     using System.Diagnostics.CodeAnalysis;
 
     using Microsoft.AspNetCore.Builder;
-    using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.Logging;
     using Microsoft.Net.Http.Headers;
 
     using ZNetCS.AspNetCore.Compression.Compressors;
-    using ZNetCS.AspNetCore.Compression.DependencyInjection;
 
     #endregion
 
@@ -39,17 +36,8 @@ namespace ZNetCS.AspNetCore.Compression.TestWebSite
         /// <param name="app">
         /// The application builder.
         /// </param>
-        /// <param name="env">
-        /// The environment.
-        /// </param>
-        /// <param name="loggerFactory">
-        /// The logger factory.
-        /// </param>
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app)
         {
-            loggerFactory.AddConsole();
-            loggerFactory.AddDebug();
-
             app.UseCompression();
 
             app.Map(

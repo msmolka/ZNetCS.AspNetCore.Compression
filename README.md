@@ -22,7 +22,7 @@ When you install the package, it should be added to your `.csproj`. Alternativel
 
 ```xml
 <ItemGroup>
-    <PackageReference Include="ZNetCS.AspNetCore.Compression" Version="2.0.2" />
+    <PackageReference Include="ZNetCS.AspNetCore.Compression" Version="2.2.0" />
 </ItemGroup>
 ```
 
@@ -42,7 +42,7 @@ public void ConfigureServices(IServiceCollection services)
     services.AddCompression();
 }
 
-public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+public void Configure(IApplicationBuilder app)
 {
     app.UseCompression();
 
@@ -53,7 +53,7 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerF
 You can alternatively setup additional options for compression and decompression
 
 ```csharp
-public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+public void Configure(IApplicationBuilder app)
 {
     app.UseCompression();
 
@@ -84,8 +84,8 @@ public void ConfigureServices(IServiceCollection services)
                 "/lib/"
             };
             options.MinimumCompressionThreshold = 860;
-            options.Compressors = new List<ICompressor> { new GZipCompressor(), new DeflateCompressor() };
-            options.Decompressors = new List<IDecompressor> { new GZipDecompressor(), new DeflateDecompressor() };
+            options.Compressors = new List<ICompressor> { new GZipCompressor(), new DeflateCompressor(), new BrotliCompressor() };
+            options.Decompressors = new List<IDecompressor> { new GZipDecompressor(), new DeflateDecompressor(), new BrotliDecompressor() };
         });
 }
 ```
@@ -95,7 +95,7 @@ The default options when empty constructor is used are listed above.
 Compressors also allow to specify compression level.
 
 ```csharp
-public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+public void Configure(IApplicationBuilder app)
 {
     app.UseCompression();
 

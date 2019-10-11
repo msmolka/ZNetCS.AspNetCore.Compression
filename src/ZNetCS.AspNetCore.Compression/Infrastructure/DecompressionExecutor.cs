@@ -50,9 +50,7 @@ namespace ZNetCS.AspNetCore.Compression.Infrastructure
         /// The logger factory.
         /// </param>
         public DecompressionExecutor(ILoggerFactory loggerFactory)
-        {
-            this.logger = loggerFactory.CreateLogger<DecompressionExecutor>();
-        }
+            => this.logger = loggerFactory.CreateLogger<DecompressionExecutor>();
 
         #endregion
 
@@ -65,7 +63,7 @@ namespace ZNetCS.AspNetCore.Compression.Infrastructure
         /// The <see cref="HttpContext"/> context.
         /// </param>
         /// <param name="decompressors">
-        /// The collection of available decompresssors.
+        /// The collection of available decompressors.
         /// </param>
         public bool CanDecompress(HttpContext context, IEnumerable<IDecompressor> decompressors)
         {
@@ -74,10 +72,15 @@ namespace ZNetCS.AspNetCore.Compression.Infrastructure
                 return false;
             }
 
-            var contentEncodings = context.Request.Headers.GetCommaSeparatedValues(HeaderNames.ContentEncoding) ?? new string[0];
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
+            var contentEncodings = context.Request.Headers.GetCommaSeparatedValues(HeaderNames.ContentEncoding) ?? Array.Empty<string>();
 
             string ce = contentEncodings.LastOrDefault();
-            return decompressors.Any(d => d.ContentCoding.Equals(ce, StringComparison.OrdinalIgnoreCase));
+            return decompressors.Any(d => d.ContentCoding.Equals(ce, StringComparison.InvariantCultureIgnoreCase));
         }
 
         /// <summary>
@@ -87,25 +90,30 @@ namespace ZNetCS.AspNetCore.Compression.Infrastructure
         /// The <see cref="HttpContext"/> context.
         /// </param>
         /// <param name="decompressors">
-        /// The collection of available decompresssors.
+        /// The collection of available decompressors.
         /// </param>
         /// <param name="cancellationToken">
         /// The cancellation token.
         /// </param>
         public async Task ExecuteAsync(HttpContext context, IEnumerable<IDecompressor> decompressors, CancellationToken cancellationToken)
         {
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
             // If one or more encodings have been applied to a representation, the
             // sender that applied the encodings MUST generate a Content-Encoding
             // header field that lists the content codings in the order in which
             // they were applied. Additional information about the encoding
             // parameters can be provided by other header fields not defined by this
             // specification.
-            var contentEncodings = context.Request.Headers.GetCommaSeparatedValues(HeaderNames.ContentEncoding) ?? new string[0];
+            var contentEncodings = context.Request.Headers.GetCommaSeparatedValues(HeaderNames.ContentEncoding) ?? Array.Empty<string>();
 
             // We can only decompress last encoding on list, because encodings where applied in order, so they have to be decomposed in reverse order
             string contentEncoding = contentEncodings.LastOrDefault();
 
-            IDecompressor decompressor = decompressors.FirstOrDefault(c => c.ContentCoding.Equals(contentEncoding, StringComparison.OrdinalIgnoreCase));
+            IDecompressor decompressor = decompressors.FirstOrDefault(c => c.ContentCoding.Equals(contentEncoding, StringComparison.InvariantCultureIgnoreCase));
 
             if (decompressor != null)
             {
@@ -118,7 +126,7 @@ namespace ZNetCS.AspNetCore.Compression.Infrastructure
                     // decompress here
                     await decompressor.DecompressAsync(requestBody, decompressed, cancellationToken);
 
-                    // move to beggining of stream
+                    // move to beginning of stream
                     decompressed.Seek(0, SeekOrigin.Begin);
 
                     // stream is decompressed, so set proper length.
@@ -137,7 +145,7 @@ namespace ZNetCS.AspNetCore.Compression.Infrastructure
                         context.Request.Headers.Remove(HeaderNames.ContentEncoding);
                     }
 
-                    // reasign new decompressed stream
+                    // reassign new decompressed stream
                     context.Request.Body = decompressed;
                 }
 

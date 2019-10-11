@@ -56,6 +56,11 @@ namespace ZNetCS.AspNetCore.Compression
 
             this.Compressors = new List<ICompressor> { new GZipCompressor(), new DeflateCompressor() };
             this.Decompressors = new List<IDecompressor> { new GZipDecompressor(), new DeflateDecompressor() };
+
+#if NETCOREAPP3_0
+            this.Compressors.Add(new BrotliCompressor());
+            this.Decompressors.Add(new BrotliDecompressor());
+#endif
         }
 
         #endregion
@@ -65,22 +70,26 @@ namespace ZNetCS.AspNetCore.Compression
         /// <summary>
         /// Gets or sets the compression allowed media types.
         /// </summary>
+        [SuppressMessage("Usage", "CA2227:Collection properties should be read only", Justification = "Options")]
         public ICollection<MediaTypeHeaderValue> AllowedMediaTypes { get; set; }
 
         /// <summary>
         /// Gets or sets the collection of compressors.
         /// </summary>
+        [SuppressMessage("Usage", "CA2227:Collection properties should be read only", Justification = "Options")]
         public ICollection<ICompressor> Compressors { get; set; }
 
         /// <summary>
         /// Gets or sets the collection of decompressors.
         /// </summary>
         [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "OK")]
+        [SuppressMessage("Usage", "CA2227:Collection properties should be read only", Justification = "Options")]
         public ICollection<IDecompressor> Decompressors { get; set; }
 
         /// <summary>
         /// Gets or sets the paths to be ignored for compression.
         /// </summary>
+        [SuppressMessage("Usage", "CA2227:Collection properties should be read only", Justification = "Options")]
         public ICollection<string> IgnoredPaths { get; set; }
 
         /// <summary>

@@ -7,15 +7,18 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace ZNetCS.AspNetCore.Compression.DependencyInjection
+// ReSharper disable once CheckNamespace
+namespace Microsoft.AspNetCore.Builder
 {
     #region Usings
 
     using System;
     using System.Diagnostics.CodeAnalysis;
 
-    using Microsoft.AspNetCore.Builder;
+    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Options;
+
+    using ZNetCS.AspNetCore.Compression;
 
     #endregion
 
@@ -34,7 +37,7 @@ namespace ZNetCS.AspNetCore.Compression.DependencyInjection
         /// The <see cref="IApplicationBuilder"/> to use compression on.
         /// </param>
         /// <returns>
-        /// The <see cref="IApplicationBuilder"/> so that assitional calls can be chained.
+        /// The <see cref="IApplicationBuilder"/> so that additional calls can be chained.
         /// </returns>
         [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "OK")]
         public static IApplicationBuilder UseCompression(this IApplicationBuilder app)
@@ -58,7 +61,7 @@ namespace ZNetCS.AspNetCore.Compression.DependencyInjection
         /// The <see cref="CompressionOptions"/> to configure the middleware with.
         /// </param>
         /// <returns>
-        /// The <see cref="IApplicationBuilder"/> so that assitional calls can be chained.
+        /// The <see cref="IApplicationBuilder"/> so that additional calls can be chained.
         /// </returns>
         [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "OK")]
         [Obsolete("Use " + nameof(ServiceCollectionExtensions.AddCompression) + " with configure options instead")]

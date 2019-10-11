@@ -22,10 +22,9 @@ namespace ZNetCS.AspNetCore.CompressionTest
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.TestHost;
+    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Net.Http.Headers;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-    using ZNetCS.AspNetCore.Compression.DependencyInjection;
 
     #endregion
 
@@ -44,57 +43,50 @@ namespace ZNetCS.AspNetCore.CompressionTest
         public async Task DecompressionDeflateTest()
         {
             // Arrange
-            using (var server = new TestServer(this.CreateDecompressionBuilder(options => { options.MinimumCompressionThreshold = 0; })))
+            using var server = new TestServer(this.CreateDecompressionBuilder(options => { options.MinimumCompressionThreshold = 0; }));
+
+            // Act
+            byte[] compressedBytes;
+            using (var dataStream = new MemoryStream())
             {
-                // Act
-                byte[] compressedBytes;
-                using (var dataStream = new MemoryStream())
+                using (var zipStream = new DeflateStream(dataStream, CompressionMode.Compress))
                 {
-                    using (var zipStream = new DeflateStream(dataStream, CompressionMode.Compress))
-                    {
-                        using (var writer = new StreamWriter(zipStream))
-                        {
-                            writer.Write(Helpers.ResponseText);
-                        }
-                    }
-
-                    compressedBytes = dataStream.ToArray();
+                    using var writer = new StreamWriter(zipStream);
+                    writer.Write(Helpers.ResponseText);
                 }
 
-                HttpResponseMessage response;
-                string responseText;
-
-                using (HttpClient client = server.CreateClient())
-                {
-                    client.DefaultRequestHeaders.Add(HeaderNames.AcceptEncoding, "gzip");
-
-                    var content = new ByteArrayContent(compressedBytes);
-                    content.Headers.Add(HeaderNames.ContentEncoding, "deflate");
-                    content.Headers.Add(HeaderNames.ContentLength, HeaderUtilities.FormatNonNegativeInt64(compressedBytes.Length));
-
-                    response = await client.PutAsync("/", content);
-
-                    // Assert
-                    response.EnsureSuccessStatusCode();
-
-                    Stream stream = await response.Content.ReadAsStreamAsync();
-
-                    using (var decompression = new GZipStream(stream, CompressionMode.Decompress))
-                    {
-                        using (var ms = new MemoryStream())
-                        {
-                            await decompression.CopyToAsync(ms);
-                            responseText = Encoding.UTF8.GetString(ms.ToArray());
-                        }
-                    }
-                }
-
-                Assert.AreEqual(HttpStatusCode.OK, response.StatusCode, "StatusCode != OK");
-                Assert.AreEqual(Helpers.ResponseText, responseText, "Response Text not equal");
-                Assert.AreEqual(85, response.Content.Headers.ContentLength, "Content-Length != 85");
-                Assert.AreEqual(true, response.Content.Headers.ContentEncoding.Any(), "Content-Encoding == null");
-                Assert.AreEqual("gzip", response.Content.Headers.ContentEncoding.ToString(), "Content-Encoding != gzip");
+                compressedBytes = dataStream.ToArray();
             }
+
+            HttpResponseMessage response;
+            string responseText;
+
+            using (HttpClient client = server.CreateClient())
+            {
+                client.DefaultRequestHeaders.Add(HeaderNames.AcceptEncoding, "gzip");
+
+                var content = new ByteArrayContent(compressedBytes);
+                content.Headers.Add(HeaderNames.ContentEncoding, "deflate");
+                content.Headers.Add(HeaderNames.ContentLength, HeaderUtilities.FormatNonNegativeInt64(compressedBytes.Length));
+
+                response = await client.PutAsync("/", content);
+
+                // Assert
+                response.EnsureSuccessStatusCode();
+
+                Stream stream = await response.Content.ReadAsStreamAsync();
+
+                using var decompression = new GZipStream(stream, CompressionMode.Decompress);
+                using var ms = new MemoryStream();
+                await decompression.CopyToAsync(ms);
+                responseText = Encoding.UTF8.GetString(ms.ToArray());
+            }
+
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode, "StatusCode != OK");
+            Assert.AreEqual(Helpers.ResponseText, responseText, "Response Text not equal");
+            Assert.AreEqual(85, response.Content.Headers.ContentLength, "Content-Length != 85");
+            Assert.AreEqual(true, response.Content.Headers.ContentEncoding.Any(), "Content-Encoding == null");
+            Assert.AreEqual("gzip", response.Content.Headers.ContentEncoding.ToString(), "Content-Encoding != gzip");
         }
 
         /// <summary>
@@ -104,46 +96,43 @@ namespace ZNetCS.AspNetCore.CompressionTest
         public async Task DecompressionGZipNoCompressionTest()
         {
             // Arrange
-            using (var server = new TestServer(this.CreateDecompressionBuilder()))
+            using var server = new TestServer(this.CreateDecompressionBuilder());
+
+            // Act
+            byte[] compressedBytes;
+            using (var dataStream = new MemoryStream())
             {
-                // Act
-                byte[] compressedBytes;
-                using (var dataStream = new MemoryStream())
+                using (var zipStream = new GZipStream(dataStream, CompressionMode.Compress))
                 {
-                    using (var zipStream = new GZipStream(dataStream, CompressionMode.Compress))
-                    {
-                        using (var writer = new StreamWriter(zipStream))
-                        {
-                            writer.Write(Helpers.ResponseText);
-                        }
-                    }
-
-                    compressedBytes = dataStream.ToArray();
+                    using var writer = new StreamWriter(zipStream);
+                    writer.Write(Helpers.ResponseText);
                 }
 
-                HttpResponseMessage response;
-                string responseText;
-
-                using (HttpClient client = server.CreateClient())
-                {
-                    client.DefaultRequestHeaders.Add(HeaderNames.AcceptEncoding, "gzip");
-
-                    var content = new ByteArrayContent(compressedBytes);
-                    content.Headers.Add(HeaderNames.ContentEncoding, "gzip");
-                    content.Headers.Add(HeaderNames.ContentLength, HeaderUtilities.FormatNonNegativeInt64(compressedBytes.Length));
-
-                    response = await client.PutAsync("/", content);
-
-                    // Assert
-                    response.EnsureSuccessStatusCode();
-                    responseText = await response.Content.ReadAsStringAsync();
-                }
-
-                Assert.AreEqual(HttpStatusCode.OK, response.StatusCode, "StatusCode != OK");
-                Assert.AreEqual(Helpers.ResponseText, responseText, "Response Text not equal");
-                Assert.AreEqual(124, response.Content.Headers.ContentLength, "Content-Length != 124");
-                Assert.AreEqual(false, response.Content.Headers.ContentEncoding.Any(), "Content-Encoding != null");
+                compressedBytes = dataStream.ToArray();
             }
+
+            HttpResponseMessage response;
+            string responseText;
+
+            using (HttpClient client = server.CreateClient())
+            {
+                client.DefaultRequestHeaders.Add(HeaderNames.AcceptEncoding, "gzip");
+
+                var content = new ByteArrayContent(compressedBytes);
+                content.Headers.Add(HeaderNames.ContentEncoding, "gzip");
+                content.Headers.Add(HeaderNames.ContentLength, HeaderUtilities.FormatNonNegativeInt64(compressedBytes.Length));
+
+                response = await client.PutAsync("/", content);
+
+                // Assert
+                response.EnsureSuccessStatusCode();
+                responseText = await response.Content.ReadAsStringAsync();
+            }
+
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode, "StatusCode != OK");
+            Assert.AreEqual(Helpers.ResponseText, responseText, "Response Text not equal");
+            Assert.AreEqual(124, response.Content.Headers.ContentLength, "Content-Length != 124");
+            Assert.AreEqual(false, response.Content.Headers.ContentEncoding.Any(), "Content-Encoding != null");
         }
 
         /// <summary>
@@ -153,57 +142,50 @@ namespace ZNetCS.AspNetCore.CompressionTest
         public async Task DecompressionGZipTest()
         {
             // Arrange
-            using (var server = new TestServer(this.CreateDecompressionBuilder(options => { options.MinimumCompressionThreshold = 0; })))
+            using var server = new TestServer(this.CreateDecompressionBuilder(options => { options.MinimumCompressionThreshold = 0; }));
+
+            // Act
+            byte[] compressedBytes;
+            using (var dataStream = new MemoryStream())
             {
-                // Act
-                byte[] compressedBytes;
-                using (var dataStream = new MemoryStream())
+                using (var zipStream = new GZipStream(dataStream, CompressionMode.Compress))
                 {
-                    using (var zipStream = new GZipStream(dataStream, CompressionMode.Compress))
-                    {
-                        using (var writer = new StreamWriter(zipStream))
-                        {
-                            writer.Write(Helpers.ResponseText);
-                        }
-                    }
-
-                    compressedBytes = dataStream.ToArray();
+                    using var writer = new StreamWriter(zipStream);
+                    writer.Write(Helpers.ResponseText);
                 }
 
-                HttpResponseMessage response;
-                string responseText;
-
-                using (HttpClient client = server.CreateClient())
-                {
-                    client.DefaultRequestHeaders.Add(HeaderNames.AcceptEncoding, "gzip");
-
-                    var content = new ByteArrayContent(compressedBytes);
-                    content.Headers.Add(HeaderNames.ContentEncoding, "gzip");
-                    content.Headers.Add(HeaderNames.ContentLength, HeaderUtilities.FormatNonNegativeInt64(compressedBytes.Length));
-
-                    response = await client.PutAsync("/", content);
-
-                    // Assert
-                    response.EnsureSuccessStatusCode();
-
-                    Stream stream = await response.Content.ReadAsStreamAsync();
-
-                    using (var decompression = new GZipStream(stream, CompressionMode.Decompress))
-                    {
-                        using (var ms = new MemoryStream())
-                        {
-                            await decompression.CopyToAsync(ms);
-                            responseText = Encoding.UTF8.GetString(ms.ToArray());
-                        }
-                    }
-                }
-
-                Assert.AreEqual(HttpStatusCode.OK, response.StatusCode, "StatusCode != OK");
-                Assert.AreEqual(Helpers.ResponseText, responseText, "Response Text not equal");
-                Assert.AreEqual(85, response.Content.Headers.ContentLength, "Content-Length != 85");
-                Assert.AreEqual(true, response.Content.Headers.ContentEncoding.Any(), "Content-Encoding == null");
-                Assert.AreEqual("gzip", response.Content.Headers.ContentEncoding.ToString(), "Content-Encoding != gzip");
+                compressedBytes = dataStream.ToArray();
             }
+
+            HttpResponseMessage response;
+            string responseText;
+
+            using (HttpClient client = server.CreateClient())
+            {
+                client.DefaultRequestHeaders.Add(HeaderNames.AcceptEncoding, "gzip");
+
+                var content = new ByteArrayContent(compressedBytes);
+                content.Headers.Add(HeaderNames.ContentEncoding, "gzip");
+                content.Headers.Add(HeaderNames.ContentLength, HeaderUtilities.FormatNonNegativeInt64(compressedBytes.Length));
+
+                response = await client.PutAsync("/", content);
+
+                // Assert
+                response.EnsureSuccessStatusCode();
+
+                Stream stream = await response.Content.ReadAsStreamAsync();
+
+                using var decompression = new GZipStream(stream, CompressionMode.Decompress);
+                using var ms = new MemoryStream();
+                await decompression.CopyToAsync(ms);
+                responseText = Encoding.UTF8.GetString(ms.ToArray());
+            }
+
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode, "StatusCode != OK");
+            Assert.AreEqual(Helpers.ResponseText, responseText, "Response Text not equal");
+            Assert.AreEqual(85, response.Content.Headers.ContentLength, "Content-Length != 85");
+            Assert.AreEqual(true, response.Content.Headers.ContentEncoding.Any(), "Content-Encoding == null");
+            Assert.AreEqual("gzip", response.Content.Headers.ContentEncoding.ToString(), "Content-Encoding != gzip");
         }
 
         /// <summary>
@@ -222,60 +204,156 @@ namespace ZNetCS.AspNetCore.CompressionTest
                         app.Run(
                             async c =>
                             {
-                                using (var ms = new MemoryStream())
-                                {
-                                    await c.Request.Body.CopyToAsync(ms);
+                                using var ms = new MemoryStream();
+                                await c.Request.Body.CopyToAsync(ms);
 
-                                    c.Response.ContentType = "text/plain";
-                                    c.Response.ContentLength = ms.Length;
+                                c.Response.ContentType = "text/plain";
+                                c.Response.ContentLength = ms.Length;
 
-                                    ms.Seek(0, SeekOrigin.Begin);
+                                ms.Seek(0, SeekOrigin.Begin);
 
-                                    await ms.CopyToAsync(c.Response.Body);
-                                }
+                                await ms.CopyToAsync(c.Response.Body);
                             });
                     });
 
-            using (var server = new TestServer(builder))
+            using var server = new TestServer(builder);
+
+            // Act
+            byte[] compressedBytes;
+            using (var dataStream = new MemoryStream())
             {
-                // Act
-                byte[] compressedBytes;
-                using (var dataStream = new MemoryStream())
+                using (var zipStream = new GZipStream(dataStream, CompressionMode.Compress))
                 {
-                    using (var zipStream = new GZipStream(dataStream, CompressionMode.Compress))
-                    {
-                        using (var writer = new StreamWriter(zipStream))
-                        {
-                            writer.Write(Helpers.ResponseText);
-                        }
-                    }
-
-                    compressedBytes = dataStream.ToArray();
+                    using var writer = new StreamWriter(zipStream);
+                    writer.Write(Helpers.ResponseText);
                 }
 
-                HttpResponseMessage response;
-                byte[] responseBytes;
-
-                using (HttpClient client = server.CreateClient())
-                {
-                    client.DefaultRequestHeaders.Add(HeaderNames.AcceptEncoding, "gzip");
-
-                    var content = new ByteArrayContent(compressedBytes);
-                    content.Headers.Add(HeaderNames.ContentLength, HeaderUtilities.FormatNonNegativeInt64(compressedBytes.Length));
-
-                    response = await client.PutAsync("/", content);
-
-                    // Assert
-                    response.EnsureSuccessStatusCode();
-                    responseBytes = await response.Content.ReadAsByteArrayAsync();
-                }
-
-                Assert.AreEqual(HttpStatusCode.OK, response.StatusCode, "StatusCode != OK");
-                Assert.AreEqual(true, compressedBytes.SequenceEqual(responseBytes), "Response bytes not equal");
-                Assert.AreEqual(compressedBytes.Length, response.Content.Headers.ContentLength, $"Content-Length != {compressedBytes.Length}");
-                Assert.AreEqual(true, !response.Content.Headers.ContentEncoding.Any(), "Content-Encoding != null");
+                compressedBytes = dataStream.ToArray();
             }
+
+            HttpResponseMessage response;
+            byte[] responseBytes;
+
+            using (HttpClient client = server.CreateClient())
+            {
+                client.DefaultRequestHeaders.Add(HeaderNames.AcceptEncoding, "gzip");
+
+                var content = new ByteArrayContent(compressedBytes);
+                content.Headers.Add(HeaderNames.ContentLength, HeaderUtilities.FormatNonNegativeInt64(compressedBytes.Length));
+
+                response = await client.PutAsync("/", content);
+
+                // Assert
+                response.EnsureSuccessStatusCode();
+                responseBytes = await response.Content.ReadAsByteArrayAsync();
+            }
+
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode, "StatusCode != OK");
+            Assert.AreEqual(true, compressedBytes.SequenceEqual(responseBytes), "Response bytes not equal");
+            Assert.AreEqual(compressedBytes.Length, response.Content.Headers.ContentLength, $"Content-Length != {compressedBytes.Length}");
+            Assert.AreEqual(true, !response.Content.Headers.ContentEncoding.Any(), "Content-Encoding != null");
         }
+
+#if NETCOREAPP3_0
+        /// <summary>
+        /// The decompression Brotli no compression test.
+        /// </summary>
+        [TestMethod]
+        public async Task DecompressionBrotliNoCompressionTest()
+        {
+            // Arrange
+            using var server = new TestServer(this.CreateDecompressionBuilder());
+
+            // Act
+            byte[] compressedBytes;
+            using (var dataStream = new MemoryStream())
+            {
+                using (var zipStream = new BrotliStream(dataStream, CompressionMode.Compress))
+                {
+                    using var writer = new StreamWriter(zipStream);
+                    writer.Write(Helpers.ResponseText);
+                }
+
+                compressedBytes = dataStream.ToArray();
+            }
+
+            HttpResponseMessage response;
+            string responseText;
+
+            using (HttpClient client = server.CreateClient())
+            {
+                client.DefaultRequestHeaders.Add(HeaderNames.AcceptEncoding, "br");
+
+                var content = new ByteArrayContent(compressedBytes);
+                content.Headers.Add(HeaderNames.ContentEncoding, "br");
+                content.Headers.Add(HeaderNames.ContentLength, HeaderUtilities.FormatNonNegativeInt64(compressedBytes.Length));
+
+                response = await client.PutAsync("/", content);
+
+                // Assert
+                response.EnsureSuccessStatusCode();
+                responseText = await response.Content.ReadAsStringAsync();
+            }
+
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode, "StatusCode != OK");
+            Assert.AreEqual(Helpers.ResponseText, responseText, "Response Text not equal");
+            Assert.AreEqual(124, response.Content.Headers.ContentLength, "Content-Length != 124");
+            Assert.AreEqual(false, response.Content.Headers.ContentEncoding.Any(), "Content-Encoding != null");
+        }
+
+        /// <summary>
+        /// The decompression Brotli test.
+        /// </summary>
+        [TestMethod]
+        public async Task DecompressionBrotliTest()
+        {
+            // Arrange
+            using var server = new TestServer(this.CreateDecompressionBuilder(options => { options.MinimumCompressionThreshold = 0; }));
+
+            // Act
+            byte[] compressedBytes;
+            using (var dataStream = new MemoryStream())
+            {
+                using (var zipStream = new BrotliStream(dataStream, CompressionMode.Compress))
+                {
+                    using var writer = new StreamWriter(zipStream);
+                    writer.Write(Helpers.ResponseText);
+                }
+
+                compressedBytes = dataStream.ToArray();
+            }
+
+            HttpResponseMessage response;
+            string responseText;
+
+            using (HttpClient client = server.CreateClient())
+            {
+                client.DefaultRequestHeaders.Add(HeaderNames.AcceptEncoding, "br");
+
+                var content = new ByteArrayContent(compressedBytes);
+                content.Headers.Add(HeaderNames.ContentEncoding, "br");
+                content.Headers.Add(HeaderNames.ContentLength, HeaderUtilities.FormatNonNegativeInt64(compressedBytes.Length));
+
+                response = await client.PutAsync("/", content);
+
+                // Assert
+                response.EnsureSuccessStatusCode();
+
+                Stream stream = await response.Content.ReadAsStreamAsync();
+
+                using var decompression = new BrotliStream(stream, CompressionMode.Decompress);
+                using var ms = new MemoryStream();
+                await decompression.CopyToAsync(ms);
+                responseText = Encoding.UTF8.GetString(ms.ToArray());
+            }
+
+            Assert.AreEqual(HttpStatusCode.OK, response.StatusCode, "StatusCode != OK");
+            Assert.AreEqual(Helpers.ResponseText, responseText, "Response Text not equal");
+            Assert.AreEqual(70, response.Content.Headers.ContentLength, "Content-Length != 70");
+            Assert.AreEqual(true, response.Content.Headers.ContentEncoding.Any(), "Content-Encoding == null");
+            Assert.AreEqual("br", response.Content.Headers.ContentEncoding.ToString(), "Content-Encoding != br");
+        }
+#endif
 
         #endregion
     }

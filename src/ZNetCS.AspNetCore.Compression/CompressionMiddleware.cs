@@ -38,7 +38,7 @@ namespace ZNetCS.AspNetCore.Compression
         private readonly ILogger logger;
 
         /// <summary>
-        /// The next.
+        /// The next delegate.
         /// </summary>
         private readonly RequestDelegate next;
 
@@ -65,6 +65,11 @@ namespace ZNetCS.AspNetCore.Compression
         /// </param>
         public CompressionMiddleware(RequestDelegate next, ILoggerFactory loggerFactory, IOptions<CompressionOptions> options)
         {
+            if (options == null)
+            {
+                throw new ArgumentNullException(nameof(options));
+            }
+
             this.next = next;
             this.logger = loggerFactory.CreateLogger<CompressionMiddleware>();
             this.options = options.Value;

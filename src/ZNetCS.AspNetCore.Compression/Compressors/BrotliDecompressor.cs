@@ -1,12 +1,13 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="GZipDecompressor.cs" company="Marcin Smółka zNET Computer Solutions">
+// <copyright file="BrotliDecompressor.cs" company="Marcin Smółka zNET Computer Solutions">
 //   Copyright (c) Marcin Smółka zNET Computer Solutions. All rights reserved.
 // </copyright>
 // <summary>
-//   GZIP decompressor implementation.
+//   Brotli decompressor implementation.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+#if NETCOREAPP3_0
 namespace ZNetCS.AspNetCore.Compression.Compressors
 {
     #region Usings
@@ -18,23 +19,24 @@ namespace ZNetCS.AspNetCore.Compression.Compressors
     #endregion
 
     /// <summary>
-    /// GZIP decompressor implementation.
+    /// Brotli decompressor implementation.
     /// </summary>
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "OK")]
-    public class GZipDecompressor : DecompressorBase
+    public class BrotliDecompressor : DecompressorBase
     {
         #region Public Properties
 
         /// <inheritdoc/>
-        public override string ContentCoding => "gzip";
+        public override string ContentCoding => "br";
 
         #endregion
 
         #region Methods
 
         /// <inheritdoc/>
-        protected override Stream CreateDecompressionStream(Stream compressedSource) => new GZipStream(compressedSource, CompressionMode.Decompress, true);
+        protected override Stream CreateDecompressionStream(Stream compressedSource) => new BrotliStream(compressedSource, CompressionMode.Decompress, true);
 
         #endregion
     }
 }
+#endif

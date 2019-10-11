@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="ServiceCollectionExtensions.cs" company="Marcin Smółka zNET Computer Solutions">
+// <copyright company="Marcin Smółka zNET Computer Solutions" file="ServiceCollectionExtensions.cs">
 //   Copyright (c) Marcin Smółka zNET Computer Solutions. All rights reserved.
 // </copyright>
 // <summary>
@@ -7,15 +7,15 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace ZNetCS.AspNetCore.Compression.DependencyInjection
+// ReSharper disable once CheckNamespace
+namespace Microsoft.Extensions.DependencyInjection
 {
     #region Usings
 
     using System;
 
-    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.DependencyInjection.Extensions;
-
+    using ZNetCS.AspNetCore.Compression;
     using ZNetCS.AspNetCore.Compression.Infrastructure;
 
     #endregion

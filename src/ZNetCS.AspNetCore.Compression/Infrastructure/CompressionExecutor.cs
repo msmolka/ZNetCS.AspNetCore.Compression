@@ -51,10 +51,7 @@ namespace ZNetCS.AspNetCore.Compression.Infrastructure
         /// <param name="loggerFactory">
         /// The logger factory.
         /// </param>
-        public CompressionExecutor(ILoggerFactory loggerFactory)
-        {
-            this.logger = loggerFactory.CreateLogger<CompressionExecutor>();
-        }
+        public CompressionExecutor(ILoggerFactory loggerFactory) => this.logger = loggerFactory.CreateLogger<CompressionExecutor>();
 
         #endregion
 
@@ -74,6 +71,11 @@ namespace ZNetCS.AspNetCore.Compression.Infrastructure
             if (allowedMediaTypes == null)
             {
                 return false;
+            }
+
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
             }
 
             // check if content type is allowed to be compressed
@@ -97,8 +99,13 @@ namespace ZNetCS.AspNetCore.Compression.Infrastructure
                 return true;
             }
 
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
             // check if request path should be ignored
-            return !context.Request.Path.HasValue || !ignoredPaths.Any(i => context.Request.Path.Value.StartsWith(i, StringComparison.OrdinalIgnoreCase));
+            return !context.Request.Path.HasValue || !ignoredPaths.Any(i => context.Request.Path.Value.StartsWith(i, StringComparison.InvariantCultureIgnoreCase));
         }
 
         /// <summary>
@@ -117,9 +124,14 @@ namespace ZNetCS.AspNetCore.Compression.Infrastructure
                 return false;
             }
 
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
             // check if there is available compressor
-            var acceptEncodings = this.GetAcceptEncodings(context).Select(a => a.Value.ToString());
-            return compressors.Any(c => acceptEncodings.Contains(c.ContentCoding, StringComparer.OrdinalIgnoreCase));
+            var acceptEncodings = GetAcceptEncodings(context).Select(a => a.Value.ToString());
+            return compressors.Any(c => acceptEncodings.Contains(c.ContentCoding, StringComparer.InvariantCultureIgnoreCase));
         }
 
         /// <summary>
@@ -139,6 +151,11 @@ namespace ZNetCS.AspNetCore.Compression.Infrastructure
         /// </param>
         public async Task ExecuteAsync(HttpContext context, Stream bufferedStream, ICollection<ICompressor> compressors, CancellationToken cancellationToken)
         {
+            if (context == null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
             ICompressor compressor = this.FindCompresssor(context, compressors);
 
             if (compressor != null)
@@ -157,14 +174,14 @@ namespace ZNetCS.AspNetCore.Compression.Infrastructure
 
                     compressionStream.Seek(0, SeekOrigin.Begin);
 
-                    var contentEncodings = context.Response.Headers.GetCommaSeparatedValues(HeaderNames.ContentEncoding) ?? new string[0];
+                    var contentEncodings = context.Response.Headers.GetCommaSeparatedValues(HeaderNames.ContentEncoding) ?? Array.Empty<string>();
 
                     // lets add new content coding on the end of list
                     contentEncodings = contentEncodings.Concat(new[] { compressor.ContentCoding }).ToArray();
                     context.Response.Headers[HeaderNames.ContentEncoding] = new StringValues(contentEncodings);
 
                     // the good practice is to add vary header
-                    var vary = context.Response.Headers.GetCommaSeparatedValues(HeaderNames.Vary) ?? new string[0];
+                    var vary = context.Response.Headers.GetCommaSeparatedValues(HeaderNames.Vary) ?? Array.Empty<string>();
                     if (!vary.Contains(HeaderNames.AcceptEncoding))
                     {
                         vary = vary.Concat(new[] { HeaderNames.AcceptEncoding }).ToArray();
@@ -186,6 +203,29 @@ namespace ZNetCS.AspNetCore.Compression.Infrastructure
         #region Methods
 
         /// <summary>
+        /// Gets available content encodings for response.
+        /// </summary>
+        /// <param name="context">
+        /// The <see cref="HttpContext"/> context.
+        /// </param>
+        private static IEnumerable<StringWithQualityHeaderValue> GetAcceptEncodings(HttpContext context)
+        {
+            var accpetEncodings = context.Request.Headers.GetCommaSeparatedValues(HeaderNames.AcceptEncoding) ?? Array.Empty<string>();
+
+            // See https://tools.ietf.org/html/rfc7231#section-5.3.4
+            // 3. If the representation's content-coding is one of the
+            // content-codings listed in the Accept-Encoding field, then it is
+            // acceptable unless it is accompanied by a qvalue of 0. (As
+            // defined in Section 5.3.1, a qvalue of 0 means "not acceptable".)
+            // 4. If multiple content-codings are acceptable, then the acceptable
+            // content-coding with the highest non-zero qvalue is preferred.
+            return accpetEncodings
+                .Select(a => StringWithQualityHeaderValue.Parse(a))
+                .Where(e => (e.Quality == null) || (e.Quality > 0))
+                .OrderByDescending(e => e.Quality ?? 1);
+        }
+
+        /// <summary>
         /// Finds best suitable compressor.
         /// </summary>
         /// <param name="context">
@@ -196,42 +236,19 @@ namespace ZNetCS.AspNetCore.Compression.Infrastructure
         /// </param>
         private ICompressor FindCompresssor(HttpContext context, ICollection<ICompressor> compressors)
         {
-            var acceptEncodings = this.GetAcceptEncodings(context);
+            var acceptEncodings = GetAcceptEncodings(context);
 
             ICompressor compressor = null;
 
             foreach (StringWithQualityHeaderValue ae in acceptEncodings)
             {
-                if ((compressor = compressors.FirstOrDefault(c => c.ContentCoding.Equals(ae.Value.ToString(), StringComparison.OrdinalIgnoreCase))) != null)
+                if ((compressor = compressors.FirstOrDefault(c => c.ContentCoding.Equals(ae.Value.ToString(), StringComparison.InvariantCultureIgnoreCase))) != null)
                 {
                     break;
                 }
             }
 
             return compressor;
-        }
-
-        /// <summary>
-        /// Gets available content encodings for response.
-        /// </summary>
-        /// <param name="context">
-        /// The <see cref="HttpContext"/> context.
-        /// </param>
-        private IEnumerable<StringWithQualityHeaderValue> GetAcceptEncodings(HttpContext context)
-        {
-            var accpetEncodings = context.Request.Headers.GetCommaSeparatedValues(HeaderNames.AcceptEncoding) ?? new string[0];
-
-            // See https://tools.ietf.org/html/rfc7231#section-5.3.4
-            // 3. If the representation's content-coding is one of the
-            // content-codings listed in the Accept-Encoding field, then it is
-            // acceptable unless it is accompanied by a qvalue of 0.  (As
-            // defined in Section 5.3.1, a qvalue of 0 means "not acceptable".)
-            // 4. If multiple content-codings are acceptable, then the acceptable
-            // content-coding with the highest non-zero qvalue is preferred.
-            return accpetEncodings
-                .Select(a => StringWithQualityHeaderValue.Parse(a))
-                .Where(e => (e.Quality == null) || (e.Quality > 0))
-                .OrderByDescending(e => e.Quality ?? 1);
         }
 
         #endregion

@@ -11,6 +11,7 @@ namespace ZNetCS.AspNetCore.Compression.Compressors
 {
     #region Usings
 
+    using System;
     using System.IO;
     using System.IO.Compression;
     using System.Threading;
@@ -40,10 +41,13 @@ namespace ZNetCS.AspNetCore.Compression.Compressors
         /// <inheritdoc />
         public virtual async Task CompressAsync(Stream inputStream, Stream outputStream, CancellationToken cancellationToken)
         {
-            using (Stream compressedStream = this.CreateCompressionStream(outputStream))
+            if (inputStream == null)
             {
-                await inputStream.CopyToAsync(compressedStream, Consts.DefaultBufferSize, cancellationToken);
+                throw new ArgumentNullException(nameof(inputStream));
             }
+
+            using Stream compressedStream = this.CreateCompressionStream(outputStream);
+            await inputStream.CopyToAsync(compressedStream, Consts.DefaultBufferSize, cancellationToken);
         }
 
         #endregion
