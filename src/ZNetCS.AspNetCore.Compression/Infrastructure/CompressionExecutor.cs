@@ -156,7 +156,7 @@ namespace ZNetCS.AspNetCore.Compression.Infrastructure
                 throw new ArgumentNullException(nameof(context));
             }
 
-            ICompressor compressor = this.FindCompresssor(context, compressors);
+            ICompressor compressor = FindCompressor(context, compressors);
 
             if (compressor != null)
             {
@@ -165,7 +165,7 @@ namespace ZNetCS.AspNetCore.Compression.Infrastructure
                 // we need to wrap to be able to count length after compression, body is unreadable
                 // also all headers needs to be set before data is starting to be copied to output body
                 // without wrapper we cannot apply headers after compression
-                using (var compressionStream = new MemoryStream())
+                await using (var compressionStream = new MemoryStream())
                 {
                     await compressor.CompressAsync(bufferedStream, compressionStream, cancellationToken);
 
@@ -203,6 +203,32 @@ namespace ZNetCS.AspNetCore.Compression.Infrastructure
         #region Methods
 
         /// <summary>
+        /// Finds best suitable compressor.
+        /// </summary>
+        /// <param name="context">
+        /// The <see cref="HttpContext"/> context.
+        /// </param>
+        /// <param name="compressors">
+        /// The collection of available compressors.
+        /// </param>
+        private static ICompressor FindCompressor(HttpContext context, ICollection<ICompressor> compressors)
+        {
+            var acceptEncodings = GetAcceptEncodings(context);
+
+            ICompressor compressor = null;
+
+            foreach (StringWithQualityHeaderValue ae in acceptEncodings)
+            {
+                if ((compressor = compressors.FirstOrDefault(c => c.ContentCoding.Equals(ae.Value.ToString(), StringComparison.InvariantCultureIgnoreCase))) != null)
+                {
+                    break;
+                }
+            }
+
+            return compressor;
+        }
+
+        /// <summary>
         /// Gets available content encodings for response.
         /// </summary>
         /// <param name="context">
@@ -223,32 +249,6 @@ namespace ZNetCS.AspNetCore.Compression.Infrastructure
                 .Select(a => StringWithQualityHeaderValue.Parse(a))
                 .Where(e => (e.Quality == null) || (e.Quality > 0))
                 .OrderByDescending(e => e.Quality ?? 1);
-        }
-
-        /// <summary>
-        /// Finds best suitable compressor.
-        /// </summary>
-        /// <param name="context">
-        /// The <see cref="HttpContext"/> context.
-        /// </param>
-        /// <param name="compressors">
-        /// The collection of available compressors.
-        /// </param>
-        private ICompressor FindCompresssor(HttpContext context, ICollection<ICompressor> compressors)
-        {
-            var acceptEncodings = GetAcceptEncodings(context);
-
-            ICompressor compressor = null;
-
-            foreach (StringWithQualityHeaderValue ae in acceptEncodings)
-            {
-                if ((compressor = compressors.FirstOrDefault(c => c.ContentCoding.Equals(ae.Value.ToString(), StringComparison.InvariantCultureIgnoreCase))) != null)
-                {
-                    break;
-                }
-            }
-
-            return compressor;
         }
 
         #endregion

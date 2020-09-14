@@ -3,7 +3,7 @@
 //   Copyright (c) Marcin Smółka zNET Computer Solutions. All rights reserved.
 // </copyright>
 // <summary>
-//   The decompression excecutor.
+//   The decompression executor.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -121,7 +121,7 @@ namespace ZNetCS.AspNetCore.Compression.Infrastructure
 
                 Stream decompressed = new MemoryStream();
 
-                using (Stream requestBody = context.Request.Body)
+                await using (Stream requestBody = context.Request.Body)
                 {
                     // decompress here
                     await decompressor.DecompressAsync(requestBody, decompressed, cancellationToken);

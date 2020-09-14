@@ -36,30 +36,24 @@ namespace ZNetCS.AspNetCore.Compression.Compressors
         /// <param name="compressionLevel">
         /// The compression level.
         /// </param>
-        public GZipCompressor(CompressionLevel compressionLevel)
-        {
-            this.CompressionLevel = compressionLevel;
-        }
+        public GZipCompressor(CompressionLevel compressionLevel) => this.CompressionLevel = compressionLevel;
 
         #endregion
 
         #region Public Properties
 
-        /// <inheritdoc />
+        /// <inheritdoc/>
         public override CompressionLevel CompressionLevel { get; }
 
-        /// <inheritdoc />
+        /// <inheritdoc/>
         public override string ContentCoding => "gzip";
 
         #endregion
 
         #region Methods
 
-        /// <inheritdoc />
-        protected override Stream CreateCompressionStream(Stream compressedDestination)
-        {
-            return new GZipStream(compressedDestination, this.CompressionLevel, leaveOpen: true);
-        }
+        /// <inheritdoc/>
+        protected override Stream CreateCompressionStream(Stream compressedDestination) => new GZipStream(compressedDestination, this.CompressionLevel, true);
 
         #endregion
     }

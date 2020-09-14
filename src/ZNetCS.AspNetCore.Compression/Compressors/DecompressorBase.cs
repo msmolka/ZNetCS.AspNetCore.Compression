@@ -38,10 +38,8 @@ namespace ZNetCS.AspNetCore.Compression.Compressors
         /// <inheritdoc />
         public virtual async Task DecompressAsync(Stream inputStream, Stream outputStream, CancellationToken cancellationToken)
         {
-            using (Stream decompressionSource = this.CreateDecompressionStream(inputStream))
-            {
-                await decompressionSource.CopyToAsync(outputStream, Consts.DefaultBufferSize, cancellationToken);
-            }
+            using Stream decompressionSource = this.CreateDecompressionStream(inputStream);
+            await decompressionSource.CopyToAsync(outputStream, Consts.DefaultBufferSize, cancellationToken);
         }
 
         #endregion
