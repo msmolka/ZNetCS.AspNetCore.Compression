@@ -121,7 +121,7 @@ namespace ZNetCS.AspNetCore.Compression.Infrastructure
 
                 Stream decompressed = new MemoryStream();
 
-                await using (Stream requestBody = context.Request.Body)
+                using (Stream requestBody = context.Request.Body)
                 {
                     // decompress here
                     await decompressor.DecompressAsync(requestBody, decompressed, cancellationToken);

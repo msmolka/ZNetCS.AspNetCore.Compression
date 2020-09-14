@@ -165,7 +165,7 @@ namespace ZNetCS.AspNetCore.Compression.Infrastructure
                 // we need to wrap to be able to count length after compression, body is unreadable
                 // also all headers needs to be set before data is starting to be copied to output body
                 // without wrapper we cannot apply headers after compression
-                await using (var compressionStream = new MemoryStream())
+                using (var compressionStream = new MemoryStream())
                 {
                     await compressor.CompressAsync(bufferedStream, compressionStream, cancellationToken);
 
