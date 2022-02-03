@@ -1,158 +1,156 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="DecompressionExecutor.cs" company="Marcin Smółka zNET Computer Solutions">
-//   Copyright (c) Marcin Smółka zNET Computer Solutions. All rights reserved.
+// <copyright file="DecompressionExecutor.cs" company="Marcin Smółka">
+//   Copyright (c) Marcin Smółka. All rights reserved.
 // </copyright>
 // <summary>
 //   The decompression executor.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace ZNetCS.AspNetCore.Compression.Infrastructure
+namespace ZNetCS.AspNetCore.Compression.Infrastructure;
+
+#region Usings
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
+using Microsoft.Net.Http.Headers;
+
+#endregion
+
+/// <summary>
+/// The decompression executor.
+/// </summary>
+[SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "OK")]
+public class DecompressionExecutor
 {
-    #region Usings
+    #region Fields
 
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
-    using System.IO;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-
-    using Microsoft.AspNetCore.Http;
-    using Microsoft.Extensions.Logging;
-    using Microsoft.Extensions.Primitives;
-    using Microsoft.Net.Http.Headers;
+    /// <summary>
+    /// The logger.
+    /// </summary>
+    private readonly ILogger logger;
 
     #endregion
 
+    #region Constructors and Destructors
+
     /// <summary>
-    /// The decompression executor.
+    /// Initializes a new instance of the <see cref="DecompressionExecutor"/> class.
     /// </summary>
-    [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "OK")]
-    public class DecompressionExecutor
+    /// <param name="logger">
+    /// The logger.
+    /// </param>
+    public DecompressionExecutor(ILogger<DecompressionExecutor> logger) => this.logger = logger;
+
+    #endregion
+
+    #region Public Methods
+
+    /// <summary>
+    /// Checks if context can be decompressed based on content encoding and defined decompressor list.
+    /// </summary>
+    /// <param name="context">
+    /// The <see cref="HttpContext"/> context.
+    /// </param>
+    /// <param name="decompressors">
+    /// The collection of available decompressors.
+    /// </param>
+    public bool CanDecompress(HttpContext context, IEnumerable<IDecompressor>? decompressors)
     {
-        #region Fields
-
-        /// <summary>
-        /// The logger.
-        /// </summary>
-        private readonly ILogger logger;
-
-        #endregion
-
-        #region Constructors and Destructors
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DecompressionExecutor"/> class.
-        /// </summary>
-        /// <param name="loggerFactory">
-        /// The logger factory.
-        /// </param>
-        public DecompressionExecutor(ILoggerFactory loggerFactory)
-            => this.logger = loggerFactory.CreateLogger<DecompressionExecutor>();
-
-        #endregion
-
-        #region Public Methods
-
-        /// <summary>
-        /// Checks if context can be decompressed based on content encoding and defined decompressor list.
-        /// </summary>
-        /// <param name="context">
-        /// The <see cref="HttpContext"/> context.
-        /// </param>
-        /// <param name="decompressors">
-        /// The collection of available decompressors.
-        /// </param>
-        public bool CanDecompress(HttpContext context, IEnumerable<IDecompressor> decompressors)
+        if (decompressors == null)
         {
-            if (decompressors == null)
-            {
-                return false;
-            }
-
-            if (context == null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-
-            var contentEncodings = context.Request.Headers.GetCommaSeparatedValues(HeaderNames.ContentEncoding) ?? Array.Empty<string>();
-
-            string ce = contentEncodings.LastOrDefault();
-            return decompressors.Any(d => d.ContentCoding.Equals(ce, StringComparison.InvariantCultureIgnoreCase));
+            return false;
         }
 
-        /// <summary>
-        /// Executes asynchronously decompression process and updates request based on result.
-        /// </summary>
-        /// <param name="context">
-        /// The <see cref="HttpContext"/> context.
-        /// </param>
-        /// <param name="decompressors">
-        /// The collection of available decompressors.
-        /// </param>
-        /// <param name="cancellationToken">
-        /// The cancellation token.
-        /// </param>
-        public async Task ExecuteAsync(HttpContext context, IEnumerable<IDecompressor> decompressors, CancellationToken cancellationToken)
+        if (context == null)
         {
-            if (context == null)
+            throw new ArgumentNullException(nameof(context));
+        }
+
+        string[] contentEncodings = context.Request.Headers.GetCommaSeparatedValues(HeaderNames.ContentEncoding) ?? Array.Empty<string>();
+
+        string? contentEncoding = contentEncodings.LastOrDefault();
+        return decompressors.Any(d => d.ContentCoding.Equals(contentEncoding, StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
+    /// Executes asynchronously decompression process and updates request based on result.
+    /// </summary>
+    /// <param name="context">
+    /// The <see cref="HttpContext"/> context.
+    /// </param>
+    /// <param name="decompressors">
+    /// The collection of available decompressors.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// The cancellation token.
+    /// </param>
+    public async Task ExecuteAsync(HttpContext context, IEnumerable<IDecompressor> decompressors, CancellationToken cancellationToken)
+    {
+        if (context == null)
+        {
+            throw new ArgumentNullException(nameof(context));
+        }
+
+        // If one or more encodings have been applied to a representation, the
+        // sender that applied the encodings MUST generate a Content-Encoding
+        // header field that lists the content codings in the order in which
+        // they were applied. Additional information about the encoding
+        // parameters can be provided by other header fields not defined by this
+        // specification.
+        string[] contentEncodings = context.Request.Headers.GetCommaSeparatedValues(HeaderNames.ContentEncoding) ?? Array.Empty<string>();
+
+        // We can only decompress last encoding on list, because encodings where applied in order, so they have to be decomposed in reverse order
+        string? contentEncoding = contentEncodings.LastOrDefault();
+
+        IDecompressor? decompressor = decompressors.FirstOrDefault(c => c.ContentCoding.Equals(contentEncoding, StringComparison.OrdinalIgnoreCase));
+
+        if (decompressor != null)
+        {
+            this.logger.Decompressing(decompressor.ContentCoding);
+
+            Stream decompressed = new MemoryStream();
+
+            await using (Stream requestBody = context.Request.Body)
             {
-                throw new ArgumentNullException(nameof(context));
-            }
+                // decompress here
+                await decompressor.DecompressAsync(requestBody, decompressed, cancellationToken);
 
-            // If one or more encodings have been applied to a representation, the
-            // sender that applied the encodings MUST generate a Content-Encoding
-            // header field that lists the content codings in the order in which
-            // they were applied. Additional information about the encoding
-            // parameters can be provided by other header fields not defined by this
-            // specification.
-            var contentEncodings = context.Request.Headers.GetCommaSeparatedValues(HeaderNames.ContentEncoding) ?? Array.Empty<string>();
+                // move to beginning of stream
+                decompressed.Seek(0, SeekOrigin.Begin);
 
-            // We can only decompress last encoding on list, because encodings where applied in order, so they have to be decomposed in reverse order
-            string contentEncoding = contentEncodings.LastOrDefault();
+                // stream is decompressed, so set proper length.
+                context.Request.ContentLength = decompressed.Length;
 
-            IDecompressor decompressor = decompressors.FirstOrDefault(c => c.ContentCoding.Equals(contentEncoding, StringComparison.InvariantCultureIgnoreCase));
+                // remove encoding already processed from list, the last one
+                contentEncodings = contentEncodings.Take(contentEncodings.Length - 1).ToArray();
 
-            if (decompressor != null)
-            {
-                this.logger.LogDebug($"Decompressing request using {decompressor.ContentCoding} decompressor.");
-
-                Stream decompressed = new MemoryStream();
-
-                using (Stream requestBody = context.Request.Body)
+                // update content-encoding header because it is no longer valid
+                if (contentEncodings.Any())
                 {
-                    // decompress here
-                    await decompressor.DecompressAsync(requestBody, decompressed, cancellationToken);
-
-                    // move to beginning of stream
-                    decompressed.Seek(0, SeekOrigin.Begin);
-
-                    // stream is decompressed, so set proper length.
-                    context.Request.ContentLength = decompressed.Length;
-
-                    // remove encoding already processed from list, the last one
-                    contentEncodings = contentEncodings.Take(contentEncodings.Length - 1).ToArray();
-
-                    // update content-encoding header because it is no longer valid
-                    if (contentEncodings.Any())
-                    {
-                        context.Request.Headers[HeaderNames.ContentEncoding] = new StringValues(contentEncodings);
-                    }
-                    else
-                    {
-                        context.Request.Headers.Remove(HeaderNames.ContentEncoding);
-                    }
-
-                    // reassign new decompressed stream
-                    context.Request.Body = decompressed;
+                    context.Request.Headers[HeaderNames.ContentEncoding] = new StringValues(contentEncodings);
+                }
+                else
+                {
+                    context.Request.Headers.Remove(HeaderNames.ContentEncoding);
                 }
 
-                this.logger.LogDebug("Finished decompressing request.");
+                // reassign new decompressed stream
+                context.Request.Body = decompressed;
             }
-        }
 
-        #endregion
+            this.logger.DecompressingFinished();
+        }
     }
+
+    #endregion
 }

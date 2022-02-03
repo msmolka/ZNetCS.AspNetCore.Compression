@@ -5,18 +5,26 @@ VisualStudioVersion = 16.0.29409.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{07207970-3D59-4C16-8C21-3F9021465B4A}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F8B04BF7-CA2A-4ABC-A969-08AEF2647D44}"
-	ProjectSection(SolutionItems) = preProject
-		README.md = README.md
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{669F3D41-5F78-4CAF-A145-EE64A2882A9F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZNetCS.AspNetCore.Compression", "src\ZNetCS.AspNetCore.Compression\ZNetCS.AspNetCore.Compression.csproj", "{307A6D8F-1E14-4D39-B2E3-F5820DBF99F9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZNetCS.AspNetCore.CompressionTest", "test\ZNetCS.AspNetCore.CompressionTest\ZNetCS.AspNetCore.CompressionTest.csproj", "{FF8AC07F-C72F-41C9-9242-613B60FF7780}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZNetCS.AspNetCore.Compression.TestWebSite", "test\ZNetCS.AspNetCore.Compression.TestWebSite\ZNetCS.AspNetCore.Compression.TestWebSite.csproj", "{F6134ECB-2395-4643-AEBB-573D3B4BEA59}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{DEF9CBB5-836E-4885-B296-34E56F0E47C0}"
+	ProjectSection(SolutionItems) = preProject
+		src\Directory.Build.props = src\Directory.Build.props
+		src\StrongNameKey.snk = src\StrongNameKey.snk
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "config", "config", "{A873D446-B82D-49AC-9CA3-BE48DD95C163}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		LICENSE = LICENSE
+		README.md = README.md
+		stylecop.json = stylecop.json
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,10 +40,6 @@ Global
 		{FF8AC07F-C72F-41C9-9242-613B60FF7780}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF8AC07F-C72F-41C9-9242-613B60FF7780}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FF8AC07F-C72F-41C9-9242-613B60FF7780}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F6134ECB-2395-4643-AEBB-573D3B4BEA59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F6134ECB-2395-4643-AEBB-573D3B4BEA59}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F6134ECB-2395-4643-AEBB-573D3B4BEA59}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F6134ECB-2395-4643-AEBB-573D3B4BEA59}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -43,7 +47,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{307A6D8F-1E14-4D39-B2E3-F5820DBF99F9} = {07207970-3D59-4C16-8C21-3F9021465B4A}
 		{FF8AC07F-C72F-41C9-9242-613B60FF7780} = {669F3D41-5F78-4CAF-A145-EE64A2882A9F}
-		{F6134ECB-2395-4643-AEBB-573D3B4BEA59} = {669F3D41-5F78-4CAF-A145-EE64A2882A9F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7CBEF519-EC5F-402D-A63F-48630E10B540}

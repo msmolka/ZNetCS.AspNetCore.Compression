@@ -1,159 +1,158 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="CompressionMiddleware.cs" company="Marcin Smółka zNET Computer Solutions">
-//   Copyright (c) Marcin Smółka zNET Computer Solutions. All rights reserved.
+// <copyright file="CompressionMiddleware.cs" company="Marcin Smółka">
+//   Copyright (c) Marcin Smółka. All rights reserved.
 // </copyright>
 // <summary>
 //   The compression middleware.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace ZNetCS.AspNetCore.Compression
+namespace ZNetCS.AspNetCore.Compression;
+
+#region Usings
+
+using System;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+
+using ZNetCS.AspNetCore.Compression.Infrastructure;
+
+#endregion
+
+/// <summary>
+/// The compression middleware.
+/// </summary>
+[SuppressMessage("ReSharper", "ClassNeverInstantiated.Global", Justification = "Public API")]
+public class CompressionMiddleware
 {
-    #region Usings
+    #region Fields
 
-    using System;
-    using System.IO;
-    using System.Threading;
-    using System.Threading.Tasks;
+    /// <summary>
+    /// The logger.
+    /// </summary>
+    private readonly ILogger logger;
 
-    using Microsoft.AspNetCore.Http;
-    using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.Logging;
-    using Microsoft.Extensions.Options;
+    /// <summary>
+    /// The next delegate.
+    /// </summary>
+    private readonly RequestDelegate next;
 
-    using ZNetCS.AspNetCore.Compression.Infrastructure;
+    /// <summary>
+    /// The options.
+    /// </summary>
+    private readonly CompressionOptions options;
 
     #endregion
 
+    #region Constructors and Destructors
+
     /// <summary>
-    /// The compression middleware.
+    /// Initializes a new instance of the <see cref="CompressionMiddleware"/> class.
     /// </summary>
-    public class CompressionMiddleware
+    /// <param name="next">
+    /// The <see cref="RequestDelegate"/> representing the next middleware in the pipeline.
+    /// </param>
+    /// <param name="loggerFactory">
+    /// The logger factory.
+    /// </param>
+    /// <param name="options">
+    /// The <see cref="CompressionOptions"/> representing the options for the <see cref="CompressionMiddleware"/>.
+    /// </param>
+    public CompressionMiddleware(RequestDelegate next, ILoggerFactory loggerFactory, IOptions<CompressionOptions> options)
     {
-        #region Fields
-
-        /// <summary>
-        /// The logger.
-        /// </summary>
-        private readonly ILogger logger;
-
-        /// <summary>
-        /// The next delegate.
-        /// </summary>
-        private readonly RequestDelegate next;
-
-        /// <summary>
-        /// The options.
-        /// </summary>
-        private readonly CompressionOptions options;
-
-        #endregion
-
-        #region Constructors and Destructors
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CompressionMiddleware"/> class.
-        /// </summary>
-        /// <param name="next">
-        /// The <see cref="RequestDelegate"/> representing the next middleware in the pipeline.
-        /// </param>
-        /// <param name="loggerFactory">
-        /// The logger factory.
-        /// </param>
-        /// <param name="options">
-        /// The <see cref="CompressionOptions"/> representing the options for the <see cref="CompressionMiddleware"/>.
-        /// </param>
-        public CompressionMiddleware(RequestDelegate next, ILoggerFactory loggerFactory, IOptions<CompressionOptions> options)
+        if (options == null)
         {
-            if (options == null)
-            {
-                throw new ArgumentNullException(nameof(options));
-            }
-
-            this.next = next;
-            this.logger = loggerFactory.CreateLogger<CompressionMiddleware>();
-            this.options = options.Value;
+            throw new ArgumentNullException(nameof(options));
         }
 
-        #endregion
+        this.next = next;
+        this.logger = loggerFactory.CreateLogger<CompressionMiddleware>();
+        this.options = options.Value;
+    }
 
-        #region Public Methods
+    #endregion
 
-        /// <summary>
-        /// Invokes middleware.
-        /// </summary>
-        /// <param name="context">
-        /// The <see cref="HttpContext"/> context.
-        /// </param>
-        public async Task Invoke(HttpContext context)
+    #region Public Methods
+
+    /// <summary>
+    /// Invokes middleware.
+    /// </summary>
+    /// <param name="context">
+    /// The <see cref="HttpContext"/> context.
+    /// </param>
+    public async Task Invoke(HttpContext context)
+    {
+        if (context == null)
         {
-            if (context == null)
+            throw new ArgumentNullException(nameof(context));
+        }
+
+        CancellationToken cancellationToken = context.RequestAborted;
+        var decompressionExecutor = context.RequestServices.GetRequiredService<DecompressionExecutor>();
+
+        // first decompress incoming request
+        this.logger.DecompressionPathCheck(context.Request.Path);
+        if (decompressionExecutor.CanDecompress(context, this.options.Decompressors))
+        {
+            await decompressionExecutor.ExecuteAsync(context, this.options.Decompressors!, cancellationToken);
+        }
+
+        this.logger.CompressionPathCheck(context.Request.Path);
+        var compressionExecutor = context.RequestServices.GetRequiredService<CompressionExecutor>();
+
+        // check we are supporting accepted encodings and request path is not ignored
+        if (compressionExecutor.CanCompress(context, this.options.IgnoredPaths) && compressionExecutor.CanCompress(context, this.options.Compressors))
+        {
+            await using var bufferedStream = new MemoryStream();
+            Stream bodyStream = context.Response.Body;
+            context.Response.Body = bufferedStream;
+
+            try
             {
-                throw new ArgumentNullException(nameof(context));
+                await this.next.Invoke(context);
+            }
+            finally
+            {
+                context.Response.Body = bodyStream;
             }
 
-            CancellationToken cancellationToken = context.RequestAborted;
-            var decompressionExecutor = context.RequestServices.GetRequiredService<DecompressionExecutor>();
+            bufferedStream.Seek(0, SeekOrigin.Begin);
 
-            // first decompress incoming request
-            this.logger.LogDebug($"Checking request for decompression: {context.Request.Path}");
-            if (decompressionExecutor.CanDecompress(context, this.options.Decompressors))
+            if ((bufferedStream.Length <= 0) || !context.Response.Body.CanWrite)
             {
-                await decompressionExecutor.ExecuteAsync(context, this.options.Decompressors, cancellationToken);
+                // there is no content so there is no need to compress - this prevents errors on no content result.
+                this.logger.NoCompressionBody();
+                return;
             }
 
-            this.logger.LogDebug($"Checking response for compression: {context.Request.Path}");
-            var compressionExecutor = context.RequestServices.GetRequiredService<CompressionExecutor>();
-
-            // check we are supporting accepted encodings and request path is not ignored
-            if (compressionExecutor.CanCompress(context, this.options.IgnoredPaths) && compressionExecutor.CanCompress(context, this.options.Compressors))
+            // skip compression for small requests, and not allowed media types
+            if ((bufferedStream.Length < this.options.MinimumCompressionThreshold) || !compressionExecutor.CanCompress(context, this.options.AllowedMediaTypes))
             {
-                using (var bufferedStream = new MemoryStream())
-                {
-                    Stream bodyStream = context.Response.Body;
-                    context.Response.Body = bufferedStream;
-
-                    try
-                    {
-                        await this.next.Invoke(context);
-                    }
-                    finally
-                    {
-                        context.Response.Body = bodyStream;
-                    }
-
-                    bufferedStream.Seek(0, SeekOrigin.Begin);
-
-                    if ((bufferedStream.Length <= 0) || !context.Response.Body.CanWrite)
-                    {
-                        // there is no content so there is no need to compress - this prevents errors on no content result.
-                        this.logger.LogDebug("Continue response without writing any body");
-                        return;
-                    }
-
-                    // skip compression for small requests, and not allowed media types
-                    if ((bufferedStream.Length < this.options.MinimumCompressionThreshold) || !compressionExecutor.CanCompress(context, this.options.AllowedMediaTypes))
-                    {
-                        // simply copy buffed value to output stream
-                        this.logger.LogDebug("Continue response without compression");
-                        await bufferedStream.CopyToAsync(context.Response.Body, Consts.DefaultBufferSize, cancellationToken);
-                    }
-                    else
-                    {
-                        // compress buffered stream directly to output body
-                        await compressionExecutor.ExecuteAsync(context, bufferedStream, this.options.Compressors, cancellationToken);
-                    }
-                }
+                // simply copy buffed value to output stream
+                this.logger.NoCompression();
+                await bufferedStream.CopyToAsync(context.Response.Body, Consts.DefaultBufferSize, cancellationToken);
             }
             else
             {
-                this.logger.LogDebug("Continue response without compression");
-                await this.next.Invoke(context);
+                // compress buffered stream directly to output body
+                await compressionExecutor.ExecuteAsync(context, bufferedStream, this.options.Compressors!, cancellationToken);
             }
-
-            this.logger.LogDebug("Finished handling request.");
+        }
+        else
+        {
+            this.logger.NoCompression();
+            await this.next.Invoke(context);
         }
 
-        #endregion
+        this.logger.Finished();
     }
+
+    #endregion
 }

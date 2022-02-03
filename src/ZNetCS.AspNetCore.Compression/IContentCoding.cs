@@ -1,26 +1,25 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="IContentCoding.cs" company="Marcin Smółka zNET Computer Solutions">
-//   Copyright (c) Marcin Smółka zNET Computer Solutions. All rights reserved.
+// <copyright file="IContentCoding.cs" company="Marcin Smółka">
+//   Copyright (c) Marcin Smółka. All rights reserved.
 // </copyright>
 // <summary>
 //   The content coding interface.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace ZNetCS.AspNetCore.Compression
+namespace ZNetCS.AspNetCore.Compression;
+
+/// <summary>
+/// The content coding interface.
+/// </summary>
+public interface IContentCoding
 {
+    #region Public Properties
+
     /// <summary>
-    /// The content coding interface.
+    /// Gets the supported content coding.
     /// </summary>
-    public interface IContentCoding
-    {
-        #region Public Properties
+    string ContentCoding { get; }
 
-        /// <summary>
-        /// Gets the supported content coding.
-        /// </summary>
-        string ContentCoding { get; }
-
-        #endregion
-    }
+    #endregion
 }

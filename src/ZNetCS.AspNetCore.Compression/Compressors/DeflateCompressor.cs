@@ -1,60 +1,59 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="DeflateCompressor.cs" company="Marcin Smółka zNET Computer Solutions">
-//   Copyright (c) Marcin Smółka zNET Computer Solutions. All rights reserved.
+// <copyright file="DeflateCompressor.cs" company="Marcin Smółka">
+//   Copyright (c) Marcin Smółka. All rights reserved.
 // </copyright>
 // <summary>
 //   Deflate compressor implementation.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace ZNetCS.AspNetCore.Compression.Compressors
-{
-    #region Usings
+namespace ZNetCS.AspNetCore.Compression.Compressors;
 
-    using System.IO;
-    using System.IO.Compression;
+#region Usings
+
+using System.IO;
+using System.IO.Compression;
+
+#endregion
+
+/// <summary>
+/// Deflate compressor implementation.
+/// </summary>
+public class DeflateCompressor : CompressorBase
+{
+    #region Constructors and Destructors
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DeflateCompressor"/> class.
+    /// </summary>
+    public DeflateCompressor() : this(CompressionLevel.Optimal)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DeflateCompressor"/> class.
+    /// </summary>
+    /// <param name="compressionLevel">
+    /// The compression level.
+    /// </param>
+    public DeflateCompressor(CompressionLevel compressionLevel) => this.CompressionLevel = compressionLevel;
 
     #endregion
 
-    /// <summary>
-    /// Deflate compressor implementation.
-    /// </summary>
-    public class DeflateCompressor : CompressorBase
-    {
-        #region Constructors and Destructors
+    #region Public Properties
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DeflateCompressor"/> class.
-        /// </summary>
-        public DeflateCompressor() : this(CompressionLevel.Optimal)
-        {
-        }
+    /// <inheritdoc/>
+    public override CompressionLevel CompressionLevel { get; }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DeflateCompressor"/> class.
-        /// </summary>
-        /// <param name="compressionLevel">
-        /// The compression level.
-        /// </param>
-        public DeflateCompressor(CompressionLevel compressionLevel) => this.CompressionLevel = compressionLevel;
+    /// <inheritdoc/>
+    public override string ContentCoding => "deflate";
 
-        #endregion
+    #endregion
 
-        #region Public Properties
+    #region Methods
 
-        /// <inheritdoc/>
-        public override CompressionLevel CompressionLevel { get; }
+    /// <inheritdoc/>
+    protected override Stream CreateCompressionStream(Stream compressedDestination) => new DeflateStream(compressedDestination, this.CompressionLevel, true);
 
-        /// <inheritdoc/>
-        public override string ContentCoding => "deflate";
-
-        #endregion
-
-        #region Methods
-
-        /// <inheritdoc/>
-        protected override Stream CreateCompressionStream(Stream compressedDestination) => new DeflateStream(compressedDestination, this.CompressionLevel, true);
-
-        #endregion
-    }
+    #endregion
 }

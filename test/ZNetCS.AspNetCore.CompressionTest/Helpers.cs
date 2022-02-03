@@ -1,26 +1,25 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Helpers.cs" company="Marcin Smółka zNET Computer Solutions">
-//   Copyright (c) Marcin Smółka zNET Computer Solutions. All rights reserved.
+// <copyright file="Helpers.cs" company="Marcin Smółka">
+//   Copyright (c) Marcin Smółka. All rights reserved.
 // </copyright>
 // <summary>
 //   The helpers.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace ZNetCS.AspNetCore.CompressionTest
+namespace ZNetCS.AspNetCore.CompressionTest;
+
+/// <summary>
+/// The helpers.
+/// </summary>
+public static class Helpers
 {
+    #region Constants
+
     /// <summary>
-    /// The helpers.
+    /// The response text.
     /// </summary>
-    public static class Helpers
-    {
-        #region Constants
+    public const string ResponseText = "0123456789abcdefghijklmnopgrstuvwxyzABCDEFGHIJKLMNOPGRSTUVWXYZ0123456789abcdefghijklmnopgrstuvwxyzABCDEFGHIJKLMNOPGRSTUVWXYZ";
 
-        /// <summary>
-        /// The response text.
-        /// </summary>
-        public const string ResponseText = "0123456789abcdefghijklmnopgrstuvwxyzABCDEFGHIJKLMNOPGRSTUVWXYZ0123456789abcdefghijklmnopgrstuvwxyzABCDEFGHIJKLMNOPGRSTUVWXYZ";
-
-        #endregion
-    }
+    #endregion
 }
