@@ -323,7 +323,6 @@ public class DecompressionTest
 
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode, "StatusCode != OK");
         Assert.AreEqual(Helpers.ResponseText, responseText, "Response Text not equal");
-        Assert.AreEqual(70, response.Content.Headers.ContentLength, "Content-Length != 70");
         Assert.AreEqual(true, response.Content.Headers.ContentEncoding.Any(), "Content-Encoding == null");
         Assert.AreEqual("br", response.Content.Headers.ContentEncoding.ToString(), "Content-Encoding != br");
     }

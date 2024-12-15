@@ -26,6 +26,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "config", "config", "{A873D4
 		stylecop.json = stylecop.json
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "pipelines", "pipelines", "{68E63940-D80C-49C4-ACDA-2403B9005FB7}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\dotnetcore.yml = .github\workflows\dotnetcore.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

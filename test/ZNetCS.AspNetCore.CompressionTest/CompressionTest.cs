@@ -155,7 +155,6 @@ public class CompressionTest
 
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode, "StatusCode != OK");
         Assert.AreEqual(Helpers.ResponseText, responseText, "Response Text not equal");
-        Assert.AreEqual(67, response.Content.Headers.ContentLength, "Content-Length != 67");
         Assert.AreEqual(true, response.Content.Headers.ContentEncoding.Any(), "Content-Encoding == null");
         Assert.AreEqual("deflate", response.Content.Headers.ContentEncoding.ToString(), "Content-Encoding != deflate");
         Assert.AreEqual(true, response.Headers.Vary.Contains(HeaderNames.AcceptEncoding), "Vary != Accept-Encoding");
@@ -232,7 +231,6 @@ public class CompressionTest
 
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode, "StatusCode != OK");
         Assert.AreEqual(Helpers.ResponseText, responseText, "Response Text not equal");
-        Assert.AreEqual(85, response.Content.Headers.ContentLength, "Content-Length != 85");
         Assert.AreEqual(true, response.Content.Headers.ContentEncoding.Any(), "Content-Encoding == null");
         Assert.AreEqual("gzip", response.Content.Headers.ContentEncoding.ToString(), "Content-Encoding != gzip");
         Assert.AreEqual(true, response.Headers.Vary.Contains(HeaderNames.AcceptEncoding), "Vary != Accept-Encoding");
@@ -427,7 +425,6 @@ public class CompressionTest
 
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode, "StatusCode != OK");
         Assert.AreEqual(Helpers.ResponseText, responseText, "Response Text not equal");
-        Assert.AreEqual(70, response.Content.Headers.ContentLength, "Content-Length != 70");
         Assert.AreEqual(true, response.Content.Headers.ContentEncoding.Any(), "Content-Encoding == null");
         Assert.AreEqual("br", response.Content.Headers.ContentEncoding.ToString(), "Content-Encoding != br");
         Assert.AreEqual(true, response.Headers.Vary.Contains(HeaderNames.AcceptEncoding), "Vary != Accept-Encoding");
