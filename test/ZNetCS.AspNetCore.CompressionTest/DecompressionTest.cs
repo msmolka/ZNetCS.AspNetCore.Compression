@@ -81,7 +81,7 @@ public class DecompressionTest
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode, "StatusCode != OK");
         Assert.AreEqual(Helpers.ResponseText, responseText, "Response Text not equal");
         Assert.AreEqual(85, response.Content.Headers.ContentLength, "Content-Length != 85");
-        Assert.AreEqual(true, response.Content.Headers.ContentEncoding.Any(), "Content-Encoding == null");
+        Assert.IsTrue(response.Content.Headers.ContentEncoding.Any(), "Content-Encoding == null");
         Assert.AreEqual("gzip", response.Content.Headers.ContentEncoding.ToString(), "Content-Encoding != gzip");
     }
 
@@ -128,7 +128,7 @@ public class DecompressionTest
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode, "StatusCode != OK");
         Assert.AreEqual(Helpers.ResponseText, responseText, "Response Text not equal");
         Assert.AreEqual(124, response.Content.Headers.ContentLength, "Content-Length != 124");
-        Assert.AreEqual(false, response.Content.Headers.ContentEncoding.Any(), "Content-Encoding != null");
+        Assert.IsFalse(response.Content.Headers.ContentEncoding.Any(), "Content-Encoding != null");
     }
 
     /// <summary>
@@ -180,7 +180,7 @@ public class DecompressionTest
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode, "StatusCode != OK");
         Assert.AreEqual(Helpers.ResponseText, responseText, "Response Text not equal");
         Assert.AreEqual(85, response.Content.Headers.ContentLength, "Content-Length != 85");
-        Assert.AreEqual(true, response.Content.Headers.ContentEncoding.Any(), "Content-Encoding == null");
+        Assert.IsTrue(response.Content.Headers.ContentEncoding.Any(), "Content-Encoding == null");
         Assert.AreEqual("gzip", response.Content.Headers.ContentEncoding.ToString(), "Content-Encoding != gzip");
     }
 
@@ -224,9 +224,9 @@ public class DecompressionTest
         }
 
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode, "StatusCode != OK");
-        Assert.AreEqual(true, compressedBytes.SequenceEqual(responseBytes), "Response bytes not equal");
+        Assert.IsTrue(compressedBytes.SequenceEqual(responseBytes), "Response bytes not equal");
         Assert.AreEqual(compressedBytes.Length, response.Content.Headers.ContentLength, $"Content-Length != {compressedBytes.Length}");
-        Assert.AreEqual(true, !response.Content.Headers.ContentEncoding.Any(), "Content-Encoding != null");
+        Assert.IsFalse(response.Content.Headers.ContentEncoding.Any(), "Content-Encoding != null");
     }
 
     /// <summary>
@@ -272,7 +272,7 @@ public class DecompressionTest
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode, "StatusCode != OK");
         Assert.AreEqual(Helpers.ResponseText, responseText, "Response Text not equal");
         Assert.AreEqual(124, response.Content.Headers.ContentLength, "Content-Length != 124");
-        Assert.AreEqual(false, response.Content.Headers.ContentEncoding.Any(), "Content-Encoding != null");
+        Assert.IsFalse(response.Content.Headers.ContentEncoding.Any(), "Content-Encoding != null");
     }
 
     /// <summary>
@@ -323,7 +323,7 @@ public class DecompressionTest
 
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode, "StatusCode != OK");
         Assert.AreEqual(Helpers.ResponseText, responseText, "Response Text not equal");
-        Assert.AreEqual(true, response.Content.Headers.ContentEncoding.Any(), "Content-Encoding == null");
+        Assert.IsTrue(response.Content.Headers.ContentEncoding.Any(), "Content-Encoding == null");
         Assert.AreEqual("br", response.Content.Headers.ContentEncoding.ToString(), "Content-Encoding != br");
     }
 

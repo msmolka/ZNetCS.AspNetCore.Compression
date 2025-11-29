@@ -82,7 +82,7 @@ public class BasicTest
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode, "StatusCode != OK");
         Assert.AreEqual(Helpers.ResponseText, responseText, "Response Text not equal");
         Assert.AreEqual(Helpers.ResponseText.Length, response.Content.Headers.ContentLength, $"Content-Length != {Helpers.ResponseText.Length}");
-        Assert.AreEqual(false, response.Content.Headers.ContentEncoding.Any(), "Content-Encoding == null");
+        Assert.IsFalse(response.Content.Headers.ContentEncoding.Any(), "Content-Encoding == null");
     }
 
     /// <summary>
